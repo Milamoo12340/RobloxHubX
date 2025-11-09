@@ -1,0 +1,1 @@
+{ "petId": "rainbow_unicorn", "petName": "Rainbow Unicorn", "rarity": "exclusive", "isExclusive": true, "isLimited": true, "value": 5000000, "stats": { "damage": 8500, "health": 7500, "speed": 110 }, "abilities": ["rainbow_trail", "luck_boost", "gem_multiplier"] }

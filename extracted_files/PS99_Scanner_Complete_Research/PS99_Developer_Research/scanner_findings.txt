@@ -1,0 +1,20 @@
+../PS99_Leak_Detector_Ultra/collection_roblox_scanner.py:                                logger.info(f"★★★ POTENTIAL ANUBIS UPDATE ASSET FOUND: {asset_data['name']} ★★★")
+../PS99_Leak_Detector_Ultra/collection_roblox_scanner.py-                except Exception as e:
+../PS99_Leak_Detector_Ultra/collection_roblox_scanner.py-                    logger.error(f"Error processing collection item for user {user_id}: {e}")
+../PS99_Leak_Detector_Ultra/collection_roblox_scanner.py-                    
+--
+../PS99_Leak_Detector_Ultra/collection_roblox_scanner.py:                                logger.info(f"★★★ POTENTIAL ANUBIS UPDATE ASSET FOUND: {asset_data['name']} ★★★")
+../PS99_Leak_Detector_Ultra/collection_roblox_scanner.py-                except Exception as e:
+../PS99_Leak_Detector_Ultra/collection_roblox_scanner.py-                    logger.error(f"Error processing catalog item for user {user_id}: {e}")
+../PS99_Leak_Detector_Ultra/collection_roblox_scanner.py-                    
+--
+../PS99_Leak_Detector_Ultra/collection_roblox_scanner.py:                                    logger.info(f"★★★ POTENTIAL ANUBIS UPDATE ASSET FOUND: {asset_data['name']} ★★★")
+../PS99_Leak_Detector_Ultra/collection_roblox_scanner.py-                    except Exception as e:
+../PS99_Leak_Detector_Ultra/collection_roblox_scanner.py-                        logger.error(f"Error processing inventory item for user {user_id}: {e}")
+../PS99_Leak_Detector_Ultra/collection_roblox_scanner.py-                        
+--
+../PS99_Leak_Detector_Ultra/collection_roblox_scanner.py:                                logger.info(f"★★★ POTENTIAL ANUBIS UPDATE ASSET FOUND: {asset_data['name']} ★★★")
+../PS99_Leak_Detector_Ultra/collection_roblox_scanner.py-                except Exception as e:
+../PS99_Leak_Detector_Ultra/collection_roblox_scanner.py-                    logger.error(f"Error processing catalog item for group {group_id}: {e}")
+../PS99_Leak_Detector_Ultra/collection_roblox_scanner.py-                    
+--

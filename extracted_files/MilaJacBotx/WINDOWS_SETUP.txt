@@ -1,0 +1,99 @@
+==================================================
+     WINDOWS 10/11 SETUP GUIDE FOR PS99 TRACKER
+==================================================
+
+This guide is specifically for Windows 10 and Windows 11 users (both 32-bit and 64-bit).
+
+*** STEP 1: INSTALL NODE.JS ***
+
+1. Download Node.js from: https://nodejs.org/
+   - Choose the "LTS" (Long Term Support) version
+   - Select the Windows Installer (.msi) that matches your system (64-bit or 32-bit)
+
+2. Run the installer and follow the instructions
+   - Make sure "Add to PATH" is checked during installation
+   - Accept all default settings
+
+3. Verify installation by opening Command Prompt:
+   - Press Win+R, type "cmd" and press Enter
+   - Type: node --version
+   - You should see a version number (e.g. v16.20.0)
+
+*** STEP 2: CONFIGURE THE TRACKER ***
+
+1. Extract the MilaJacBotx folder to your preferred location
+   (e.g. C:\Users\YourName\Documents\MilaJacBotx)
+
+2. Make a copy of .env.template and rename it to .env
+   - Right-click .env.template
+   - Select Copy
+   - Right-click in the same folder
+   - Select Paste
+   - Rename the copy to .env
+
+3. Edit the .env file:
+   - Right-click the .env file
+   - Select "Edit" or "Open with" > Notepad
+   - Add your Discord webhook URLs
+   - Save and close the file
+
+*** STEP 3: INSTALL DEPENDENCIES ***
+
+1. Open Command Prompt as Administrator:
+   - Press Win+X and select "Command Prompt (Admin)" or "Windows PowerShell (Admin)"
+
+2. Navigate to your MilaJacBotx folder:
+   - Type: cd C:\path\to\your\MilaJacBotx\folder
+   - Replace the path with your actual folder location
+
+3. Install dependencies:
+   - Type: npm install
+   - Wait for installation to complete
+
+*** STEP 4: START THE TRACKER ***
+
+1. Double-click the start.bat file in the MilaJacBotx folder
+   - This will open a Command Prompt window and start the tracker
+
+2. Alternatively, you can start individual scanners:
+   - Open Command Prompt
+   - Navigate to your MilaJacBotx folder
+   - Run: node ps99-icon-thumbnail-scanner.cjs
+
+*** RUNNING IN THE BACKGROUND ***
+
+To keep the tracker running even when you're not actively using your computer:
+
+1. Create a shortcut to start.bat
+   - Right-click start.bat
+   - Select "Create shortcut"
+
+2. Edit the shortcut properties:
+   - Right-click the new shortcut
+   - Select "Properties"
+   - In the "Run" dropdown, select "Minimized"
+   - Click OK
+
+3. Use this shortcut to start the tracker minimized
+
+*** TROUBLESHOOTING WINDOWS-SPECIFIC ISSUES ***
+
+If you get "node is not recognized as an internal or external command":
+- Restart your computer to refresh the PATH
+- Try running with full path: C:\Program Files\nodejs\node.exe run-all-ps99-trackers.cjs
+
+If you get security warnings:
+- Right-click the .js or .cjs files
+- Select Properties
+- At the bottom, check "Unblock" if present
+- Click Apply
+
+If you get firewall warnings:
+- Allow Node.js to communicate through your firewall when prompted
+
+*** WINDOWS PERFORMANCE TIPS ***
+
+To ensure best performance on Windows:
+- Add an exclusion for the MilaJacBotx folder in your antivirus
+- Consider adding the tracker to Windows startup for 24/7 monitoring
+- Use Task Manager to verify the node.exe process is running

@@ -1,0 +1,168 @@
+Add these to the bots already scanned developers and places / people / etc and also add https://create.roblox.com/docs/reference/engine and scan all related devs for pet simulator leaks apply all changes to the bot we have discussed in the previous messages if you have not already done so. Then test the bot. Also make sure the images for meshes textures and other related objects are viewable in the discord server as images since these are currently not displaying find any other leak data including developer blogs and send those to the bot to be automatically sent in chat. 
+
+import fs from 'fs';
+import path from 'path';
+import axios from 'axios'; // Make sure to install this package
+import { Client, GatewayIntentBits, EmbedBuilder } from 'discord.js';
+
+const client = new Client({
+    intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.MessageContent]
+});
+
+// File path for caching commands
+const cacheFilePath = path.join(__dirname, 'commandsCache.json');
+let commandCache = {};
+
+if (fs.existsSync(cacheFilePath)) {
+    const cachedData = fs.readFileSync(cacheFilePath, 'utf8');
+    commandCache = JSON.parse(cachedData);
+}
+
+private async executeCommand(command, args) {
+    try {
+        await this.processCommand(command, args);
+    } catch (error) {
+        console.error(`Error executing command ${command}:`, error);
+    }
+}
+
+private cacheCommand(command, args) {
+    commandCache[command] = args;
+    fs.writeFileSync(cacheFilePath, JSON.stringify(commandCache));
+}
+
+// Function to scrape developer data (mock implementation)
+private async scrapeDeveloperData() {
+    try {
+        const response = await axios.get('https://www.roblox.com/communities/3959677/BIG-Games-Pets#!/affiliates');
+        const data = response.data; // You would parse the actual structure here to extract developer info
+        return data; // Adjust this to return meaningful results based on the actual data
+    } catch (error) {
+        console.error("Failed to scrape developer data:", error);
+        return [];
+    }
+}
+
+// Send an embed message with developers
+private async sendDeveloperInfo(channel, developerData) {
+    const embed = new EmbedBuilder()
+        .setTitle('Developer Information for Big Games Pets')
+        .setColor('#0099ff')
+        .setDescription(developerData.join('\n')); // Assume developerData is an array of strings
+    await channel.send({ embeds:
+
+import fs from 'fs';
+import path from 'path';
+import { Client, GatewayIntentBits, EmbedBuilder } from 'discord.js';
+
+// Create a new Discord client instance
+const client = new Client({
+    intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.MessageContent]
+});
+
+// File path for caching commands
+const cacheFilePath = path.join(__dirname, 'commandsCache.json');
+let commandCache: Record<string, any> = {};
+
+// Load cached commands from file if it exists
+if (fs.existsSync(cacheFilePath)) {
+    const cachedData = fs.readFileSync(cacheFilePath, 'utf8');
+    commandCache = JSON.parse(cachedData);
+}
+
+// Function to execute commands
+private async executeCommand(command: string, args: string[]) {
+    try {
+        await this.processCommand(command, args);
+    } catch (error) {
+        console.error(`Error executing command ${command}:`, error);
+    }
+}
+
+// Cache command response when offline
+private cacheCommand(command: string, args: any) {
+    commandCache[command] = args;
+    fs.writeFileSync(cacheFilePath, JSON.stringify(commandCache));
+}
+
+// Send an embed message with both an image and a link
+private async sendEmbedWithLeak(channel, title: string, description: string, imageUrl: string, link: string) {
+    const embed = new EmbedBuilder()
+        .setTitle(title)
+        .setDescription(description)
+        .setImage(imageUrl)
+        .setURL(link)
+        .setColor('#0099ff');
+    await channel.send({ embeds: [embed] });
+}
+
+// Reconnect to Discord based on a defined strategy
+private async reconnect() {
+    try {
+        await client.login(process.env.BOT_TOKEN); // Replace with your bot token
+        console.log("Bot reconnected successfully!");
+    } catch (error) {
+        console.error("Failed to reconnect:", error);
+    }
+}
+
+// Handle messages
+client.on('messageCreate', async (message) => {
+    if (message.author.bot) return;
+
+    const args = message.content.split(' ');
+    const command = args.shift()?.toLowerCase();
+
+    // Example command for leaks
+    if (command === '!leak') {
+        const imageUrl = args[0]; // Expecting the image URL as the first argument
+        const link = args[1];      // Expecting a view link as the second argument
+        if (imageUrl && link) {
+            await this.sendEmbedWithLeak(
+                message.channel,
+                'Leak Alert!',
+                'Check out this leak!',
+                imageUrl,
+                link
+            );
+        }
+    } else if (this.isOnline) {
+        await this.executeCommand(command, args);
+    } else {
+        // Cache command if the bot is offline
+        this.cacheCommand(command, args);
+        console.log(`Command ${command} cached while offline.`);
+    }
+});
+
+// Check for connectivity and keep the bot online
+private async checkBotStatus() {
+    setInterval(async () => {
+        try {
+            await client.user?.setPresence({ activities: [{ name: "Checking connectivity" }], status: 'online' });
+        } catch (error) {
+            console.error("Status check failed, attempting to reconnect...");
+            await this.reconnect();
+        }
+    }, 30000); // Every 30 seconds
+}
+
+// Start the bot and check status
+private async startBot() {
+    await this.initializeBot();
+    this.checkBotStatus(); // Start checking the bot's status
+}
+
+// Start the bot
+startBot();
+
+Check the availability of the bot to be able to send commands even if the status says offline keep the bot active and actively sending leaks 
+
+Add places to scan to include 
+
+https://docs.biggamesapi.io
+
+https://create.roblox.com
+
+https://create.roblox.com/docs/studio/setup
+Check Roblox studio Roblox marketplace Roblox creator hub and anywhere else on Roblox pet simulator and big games and big games pets developers have uploaded or can upload meshes objects places eggs pets images data and files so the bot can scan for leaks for the game include all the game developers of big games pets and pet simulator 99 and the game developer Preston make sure the files are more than likely for the game pet simulator 99 on Roblox and keep automatic updates sending to the discord server by the bot add any additional /commands to the bot and make sure the bot operates in offline mode and still sends and retrieves information in the server and in the places the scanner can try to find leaks 

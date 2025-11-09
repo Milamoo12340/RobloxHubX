@@ -1,4 +1,4 @@
-import { Home, Library, Gauge, Zap, Newspaper, Settings } from "lucide-react";
+import { Home, Library, Gauge, Zap, Newspaper, Settings, Sparkles } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -17,6 +17,7 @@ const menuItems = [
   { title: "Game Library", url: "/library", icon: Library },
   { title: "Performance", url: "/performance", icon: Gauge },
   { title: "Optimization", url: "/optimization", icon: Zap },
+  { title: "PS99 Leaks", url: "/ps99-leaks", icon: Sparkles },
   { title: "News", url: "/news", icon: Newspaper },
 ];
 

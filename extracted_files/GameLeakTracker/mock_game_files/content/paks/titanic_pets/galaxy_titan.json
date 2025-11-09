@@ -1,0 +1,1 @@
+{ "petId": "galaxy_titan", "petName": "Galaxy Titan", "rarity": "titanic", "isHuge": true, "isTitanic": true, "value": 50000000, "stats": { "damage": 25000, "health": 30000, "speed": 150 }, "abilities": ["galaxy_warp", "cosmic_storm", "time_freeze"], "isLimited": true, "secret": true, "releaseDate": "2025-04-15T00:00:00Z" }

@@ -15,6 +15,7 @@ import GameLibrary from "@/pages/GameLibrary";
 import Performance from "@/pages/Performance";
 import Optimization from "@/pages/Optimization";
 import News from "@/pages/News";
+import PS99Leaks from "@/pages/PS99Leaks";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -25,6 +26,7 @@ function Router() {
       <Route path="/performance" component={Performance} />
       <Route path="/optimization" component={Optimization} />
       <Route path="/news" component={News} />
+      <Route path="/ps99-leaks" component={PS99Leaks} />
       <Route component={NotFound} />
     </Switch>
   );

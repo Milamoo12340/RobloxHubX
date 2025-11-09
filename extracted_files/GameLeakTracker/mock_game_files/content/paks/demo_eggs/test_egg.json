@@ -1,0 +1,15 @@
+{
+  "type": "egg",
+  "name": "Test Mythical Egg",
+  "description": "A test egg with mythical pets",
+  "cost": 10000,
+  "hatchChance": "0.01%",
+  "rarity": "mythical",
+  "possiblePets": [
+    "Mythical Dragon",
+    "Phoenix",
+    "Unicorn",
+    "Griffin"
+  ],
+  "image": "eggs/mythical_egg.png"
+}

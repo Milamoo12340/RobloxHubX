@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PS99 Scanner Status</title>
+    <link href="https://cdn.replit.com/agent/bootstrap-agent-dark-theme.min.css" rel="stylesheet">
+    <style>
+        body {
+            padding-top: 1.5rem;
+            padding-bottom: 1.5rem;
+        }
+        .status-card {
+            border-left: 4px solid #0d6efd;
+        }
+        .status-card.running {
+            border-left-color: #28a745;
+        }
+        .status-dot {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-right: 5px;
+        }
+        .status-dot.idle {
+            background-color: #6c757d;
+        }
+        .status-dot.running {
+            background-color: #28a745;
+            animation: pulse 1.5s infinite;
+        }
+        @keyframes pulse {
+            0% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.5;
+            }
+            100% {
+                opacity: 1;
+            }
+        }
+        .log-container {
+            height: 400px;
+            overflow-y: auto;
+            background-color: #212529;
+            border-radius: 4px;
+            padding: 1rem;
+            font-family: monospace;
+            font-size: 0.9rem;
+        }
+        .log-container p {
+            margin: 0;
+            padding: 2px 0;
+        }
+        .log-timestamp {
+            color: #6c757d;
+            margin-right: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="py-3 mb-4 border-bottom d-flex justify-content-between align-items-center">
+            <h1 class="display-6">Scanner Status</h1>
+            <div>
+                <a href="{{ url_for('scanner.index') }}" class="btn btn-outline-primary">Back to Dashboard</a>
+            </div>
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="card status-card {% if status.running %}running{% endif %}">
+                    <div class="card-body">
+                        <h5 class="card-title">
+                            <span class="status-dot {% if status.running %}running{% else %}idle{% endif %}"></span>
+                            Current Status
+                        </h5>
+                        <p class="card-text">
+                            Status: <strong>{% if status.running %}Running{% else %}Idle{% endif %}</strong><br>
+                            Last Scan: <strong>{{ status.last_scan_time or "Never" }}</strong><br>
+                            Assets: <strong>{{ status.asset_count }}</strong> (+ {{ status.hybrid_asset_count }} hybrid scanner)<br>
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Start New Scan</h5>
+                        <form method="post" action="{{ url_for('scanner.start_scan') }}">
+                            <div class="mb-3">
+                                <label for="scan_type" class="form-label">Scan Type</label>
+                                <select class="form-select" id="scan_type" name="scan_type">
+                                    <option value="comprehensive">Comprehensive (Rate-Limited)</option>
+                                    <option value="hybrid">Hybrid Advanced (Selenium)</option>
+                                    <option value="all">All Scanners + Compile</option>
+                                </select>
+                            </div>
+                            <div class="row mb-3">
+                                <div class="col">
+                                    <label for="max_devs" class="form-label">Max Developers</label>
+                                    <input type="number" class="form-control" id="max_devs" name="max_devs" min="1" max="17" value="3">
+                                </div>
+                                <div class="col">
+                                    <label for="max_groups" class="form-label">Max Groups</label>
+                                    <input type="number" class="form-control" id="max_groups" name="max_groups" min="1" max="3" value="1">
+                                </div>
+                            </div>
+                            <button type="submit" class="btn btn-success" {% if status.running %}disabled{% endif %}>
+                                Start Scan
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Scan Log</h5>
+            </div>
+            <div class="card-body">
+                <div class="log-container" id="logContainer">
+                    {% for log_entry in status.scan_log %}
+                        <p>{{ log_entry }}</p>
+                    {% else %}
+                        <p class="text-muted">No log entries yet</p>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Auto-scroll to bottom of log
+        const logContainer = document.getElementById('logContainer');
+        logContainer.scrollTop = logContainer.scrollHeight;
+        
+        // Set up SSE for log updates
+        const evtSource = new EventSource("{{ url_for('scanner.log_stream') }}");
+        evtSource.onmessage = function(event) {
+            const logs = JSON.parse(event.data);
+            let logHtml = '';
+            
+            logs.forEach(log => {
+                logHtml += `<p>${log}</p>`;
+            });
+            
+            logContainer.innerHTML = logHtml;
+            logContainer.scrollTop = logContainer.scrollHeight;
+        };
+        
+        // Auto-refresh status every 3 seconds
+        setInterval(function() {
+            fetch('{{ url_for("scanner.api_status") }}')
+                .then(response => response.json())
+                .then(data => {
+                    const statusDot = document.querySelector('.status-dot');
+                    const statusCard = document.querySelector('.status-card');
+                    const runButton = document.querySelector('button[type="submit"]');
+                    
+                    if (data.running) {
+                        statusDot.classList.remove('idle');
+                        statusDot.classList.add('running');
+                        statusCard.classList.add('running');
+                        runButton.disabled = true;
+                    } else {
+                        statusDot.classList.remove('running');
+                        statusDot.classList.add('idle');
+                        statusCard.classList.remove('running');
+                        runButton.disabled = false;
+                    }
+                });
+        }, 3000);
+    </script>
+</body>
+</html>

@@ -1,0 +1,204 @@
+==================================================
+    PS99 DEVELOPER ID ROTATION - IMPORTANT INFO
+==================================================
+
+*** WHY DEVELOPER IDs NEED UPDATING ***
+
+Roblox developer IDs need to be updated regularly because:
+
+1. New developers may join the PS99 team
+2. Existing developers may change usernames
+3. New test accounts might be created by the team
+4. Primary developers may start using alternate accounts
+5. Tracking the right developers is critical for finding new assets
+
+*** HOW TO UPDATE DEVELOPER IDs ***
+
+To update the developer IDs in your tracking system:
+
+1. Edit the key-developers.cjs file:
+   - Open key-developers.cjs in any text editor
+   - Find the developers array
+   - Add new developers or update existing ones
+
+2. Get latest developer IDs by:
+   - Visiting developer profiles on Roblox.com
+   - Looking at the URL: https://www.roblox.com/users/[ID]/profile
+   - Example: https://www.roblox.com/users/13365322/profile (ID is 13365322)
+
+3. Add new developer information:
+   ```javascript
+   { 
+     id: 12345678, 
+     username: "NewDeveloper", 
+     displayName: "DisplayName",
+     role: "Developer",
+     priority: 1,
+     description: "PS99 Developer"
+   }
+   ```
+
+*** AUTOMATING DEVELOPER UPDATES ***
+
+For automated developer updates, add this script:
+
+1. Create a file called update-developers.js:
+   ```javascript
+   const fs = require('fs');
+   const axios = require('axios');
+   const path = require('path');
+
+   // PS99 group ID
+   const PS99_GROUP_ID = 3959677;
+
+   // Get current developers
+   const currentDevelopers = require('./key-developers.cjs');
+
+   // Function to get group members
+   async function getGroupMembers() {
+     try {
+       // First get roles
+       const rolesResponse = await axios.get(
+         `https://groups.roblox.com/v1/groups/${PS99_GROUP_ID}/roles`
+       );
+       
+       const roles = rolesResponse.data.roles;
+       
+       // Only get members from important roles (admins, devs)
+       const importantRoles = roles.filter(role => 
+         role.rank >= 200 || 
+         role.name.toLowerCase().includes('dev') || 
+         role.name.toLowerCase().includes('admin')
+       );
+       
+       // Get members for each role
+       const developers = [];
+       
+       for (const role of importantRoles) {
+         const membersResponse = await axios.get(
+           `https://groups.roblox.com/v1/groups/${PS99_GROUP_ID}/roles/${role.id}/users`
+         );
+         
+         const members = membersResponse.data.data;
+         
+         for (const member of members) {
+           // Get additional details
+           const profileResponse = await axios.get(
+             `https://users.roblox.com/v1/users/${member.userId}`
+           );
+           
+           developers.push({
+             id: member.userId,
+             username: member.username,
+             displayName: profileResponse.data.displayName || member.username,
+             role: role.name,
+             priority: role.rank >= 250 ? 1 : (role.rank >= 200 ? 2 : 3),
+             description: `${role.name} in PS99 Group`
+           });
+           
+           // Avoid rate limiting
+           await new Promise(resolve => setTimeout(resolve, 1000));
+         }
+       }
+       
+       return developers;
+     } catch (error) {
+       console.error('Error fetching developers:', error.message);
+       return [];
+     }
+   }
+
+   // Main function
+   async function updateDevelopers() {
+     console.log('Fetching latest PS99 developers...');
+     
+     const newDevelopers = await getGroupMembers();
+     
+     if (newDevelopers.length === 0) {
+       console.log('Failed to get developers or none found. Keeping current list.');
+       return;
+     }
+     
+     console.log(`Found ${newDevelopers.length} developers.`);
+     
+     // Backup current file
+     const backupPath = `key-developers.backup.${Date.now()}.cjs`;
+     fs.copyFileSync('key-developers.cjs', backupPath);
+     console.log(`Backed up current developers to ${backupPath}`);
+     
+     // Create merged list
+     const mergedDevelopers = [...newDevelopers];
+     
+     // Add any missing important developers from current list
+     for (const dev of currentDevelopers) {
+       if (!mergedDevelopers.find(d => d.id === dev.id)) {
+         // Important developer not in group, keep them
+         if (dev.priority === 1) {
+           mergedDevelopers.push(dev);
+         }
+       }
+     }
+     
+     // Create new file content
+     const fileContent = `/**
+ * Key PS99 Developers
+ * 
+ * This file contains the most important developers to track for PS99 asset leaks.
+ * These developers are prioritized in our scanning system.
+ * Last updated: ${new Date().toLocaleString()}
+ */
+
+module.exports = ${JSON.stringify(mergedDevelopers, null, 2)};`;
+     
+     // Write new file
+     fs.writeFileSync('key-developers.cjs', fileContent);
+     
+     console.log(`Updated key-developers.cjs with ${mergedDevelopers.length} developers`);
+   }
+
+   // Run the update
+   updateDevelopers();
+   ```
+
+2. Run this script weekly:
+   ```
+   node update-developers.js
+   ```
+
+*** MANUAL VERIFICATION ***
+
+Always manually verify important developers:
+
+1. Check these key accounts regularly:
+   - chickenputty (13365322) - Lead Developer
+   - JamienChee (7707349) - Lead Developer
+   - ForeverDev (1210210) - Core Developer
+   - BuildIntoGames (19717956) - Big Games Founder
+
+2. Watch for new accounts in these places:
+   - PS99 game credits page
+   - Official Discord announcements
+   - Big Games website (biggames.io)
+   - DevForum posts about PS99
+
+3. Add manually discovered developers:
+   - Edit key-developers.cjs directly
+   - Add important information about their role
+
+*** SCHEDULING REGULAR UPDATES ***
+
+Create automatic updates with these methods:
+
+1. Windows Task Scheduler:
+   - Open Task Scheduler
+   - Create a new task to run weekly
+   - Action: Start a program
+   - Program: node.exe
+   - Arguments: update-developers.js
+
+2. Linux Cron Job:
+   - Add to crontab: 0 0 * * 0 cd /path/to/MilaJacBotx && node update-developers.js
+
+3. Manual reminder:
+   - Set a calendar reminder to update weekly
+   - Run: node update-developers.js

@@ -1,0 +1,56 @@
+==================================================
+     PS99 ASSET TRACKER - COMMON COMMANDS
+==================================================
+
+Here are the most useful commands you'll need when working with the PS99 Asset Tracker system.
+
+*** STARTING THE TRACKERS ***
+
+# Start all trackers at once (recommended)
+node run-all-ps99-trackers.cjs
+
+# Start just the icon scanner
+node ps99-icon-thumbnail-scanner.cjs
+
+# Start the developer activity tracker
+node ps99-developer-tracker.cjs
+
+# Start the urgent pet finder (fast scanning)
+node ps99-urgent-pet-finder.cjs
+
+*** INSTALLING DEPENDENCIES ***
+
+# Install all required packages
+npm install
+
+*** RUNNING CONTINUOUSLY ***
+
+# On Linux/Mac using screen
+screen -S ps99tracker
+node run-all-ps99-trackers.cjs
+# Press Ctrl+A, then D to detach the screen
+
+# Using PM2 (if installed)
+npm install -g pm2
+pm2 start run-all-ps99-trackers.cjs --name ps99tracker
+
+*** VIEWING LOGS ***
+
+# View scanner logs
+cat logs/asset-scanner.log
+cat logs/developer-tracker.log
+
+*** CUSTOMIZING SCAN FREQUENCY ***
+
+To change how often scans run, edit these files and look for scanInterval:
+
+- ps99-focused-asset-scanner.cjs
+- ps99-icon-thumbnail-scanner.cjs
+- ps99-urgent-pet-finder.cjs
+
+For example:
+- 5 minutes: scanInterval: 5 * 60 * 1000
+- 15 minutes: scanInterval: 15 * 60 * 1000
+- 1 hour: scanInterval: 60 * 60 * 1000
+
+Lower intervals = more frequent scans = higher chance of rate limiting

@@ -1,0 +1,84 @@
+modules = ["nodejs-20", "bash", "web", "python-3.9", "swift-5.6", "python-with-prybar-3.10", "nodejs-with-prybar-18"]
+run = "npm run dev"
+hidden = [".config", ".git", "generated-icon.png", "node_modules", "dist"]
+
+[nix]
+channel = "stable-24_05"
+
+[deployment]
+deploymentTarget = "autoscale"
+run = ["sh", "-c", "NODE_ENV=production tsx watch server/index.ts"]
+build = ["sh", "-c", "npm run build"]
+
+[[ports]]
+localPort = 3000
+
+[[ports]]
+localPort = 3333
+externalPort = 80
+
+[[ports]]
+localPort = 5000
+externalPort = 5000
+
+[workflows]
+runButton = "Build and Start"
+
+[[workflows.workflow]]
+name = "Project"
+mode = "parallel"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "Start application"
+
+[[workflows.workflow]]
+name = "Start application"
+author = "agent"
+
+[workflows.workflow.metadata]
+agentRequireRestartOnSave = false
+
+[[workflows.workflow.tasks]]
+task = "packager.installForAll"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "npm run dev"
+waitForPort = 5000
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "npm run dev"
+waitForPort = 5000
+
+[[workflows.workflow]]
+name = "Bot Service"
+author = 40754082
+mode = "sequential"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "NODE_ENV=production tsx watch server/index.ts"
+
+[[workflows.workflow]]
+name = "Build and Start"
+author = 40754082
+mode = "sequential"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "npm run build"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "NODE_ENV=production tsx watch server/index.ts"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "import random import requests import time  def rotate_browser_fingerprint():     \"\"\"Rotate browser fingerprint to avoid detection\"\"\"     user_agents = [         \"Mozilla/5.0 ("
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "import random import requests import time  def rotate_browser_fingerprint():     \"\"\"Rotate browser fingerprint to avoid detection\"\"\"     user_agents = [         \"Mozilla/5.0 ("

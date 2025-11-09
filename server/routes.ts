@@ -2,6 +2,9 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import si from "systeminformation";
 import Parser from "rss-parser";
+import { storage } from "./storage";
+import { insertPS99AssetSchema } from "@shared/schema";
+import { ALL_PS99_DEVELOPERS, ROBLOX_API, LEAK_KEYWORDS } from "@shared/ps99-constants";
 
 const rssParser = new Parser();
 
@@ -314,6 +317,101 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error fetching friends:", error);
       res.status(500).json({ error: "Failed to fetch friends list" });
+    }
+  });
+
+  app.get("/api/ps99/leaks", async (req, res) => {
+    try {
+      const limit = parseInt(req.query.limit as string) || 50;
+      const offset = parseInt(req.query.offset as string) || 0;
+      
+      const assets = await storage.getPS99Assets(limit, offset);
+      res.json(assets);
+    } catch (error) {
+      console.error("Error fetching PS99 leaks:", error);
+      res.status(500).json({ error: "Failed to fetch leaks" });
+    }
+  });
+
+  app.get("/api/ps99/leaks/recent", async (req, res) => {
+    try {
+      const hours = parseInt(req.query.hours as string) || 72;
+      const limit = parseInt(req.query.limit as string) || 50;
+      
+      const assets = await storage.getRecentPS99Assets(hours, limit);
+      res.json(assets);
+    } catch (error) {
+      console.error("Error fetching recent PS99 leaks:", error);
+      res.status(500).json({ error: "Failed to fetch recent leaks" });
+    }
+  });
+
+  app.get("/api/ps99/leaks/:id", async (req, res) => {
+    try {
+      const { id } = req.params;
+      const asset = await storage.getPS99AssetById(id);
+      
+      if (!asset) {
+        return res.status(404).json({ error: "Asset not found" });
+      }
+      
+      res.json(asset);
+    } catch (error) {
+      console.error("Error fetching PS99 leak:", error);
+      res.status(500).json({ error: "Failed to fetch leak" });
+    }
+  });
+
+  app.post("/api/ps99/leaks", async (req, res) => {
+    try {
+      const validatedData = insertPS99AssetSchema.parse(req.body);
+      const asset = await storage.createPS99Asset(validatedData);
+      res.status(201).json(asset);
+    } catch (error) {
+      console.error("Error creating PS99 leak:", error);
+      res.status(400).json({ error: "Invalid data" });
+    }
+  });
+
+  app.get("/api/ps99/developers", async (req, res) => {
+    try {
+      res.json(ALL_PS99_DEVELOPERS);
+    } catch (error) {
+      console.error("Error fetching PS99 developers:", error);
+      res.status(500).json({ error: "Failed to fetch developers" });
+    }
+  });
+
+  app.get("/api/ps99/scan/developer/:developerId", async (req, res) => {
+    try {
+      const { developerId } = req.params;
+      const devId = parseInt(developerId);
+      
+      const developer = ALL_PS99_DEVELOPERS.find(d => d.id === devId);
+      if (!developer) {
+        return res.status(404).json({ error: "Developer not found" });
+      }
+
+      const response = await fetch(
+        `${ROBLOX_API.USERS}/users/${devId}`
+      );
+      
+      if (!response.ok) {
+        throw new Error("Failed to fetch developer from Roblox API");
+      }
+
+      const userData = await response.json();
+      
+      res.json({
+        ...developer,
+        description: userData.description,
+        created: userData.created,
+        isBanned: userData.isBanned,
+        hasVerifiedBadge: userData.hasVerifiedBadge,
+      });
+    } catch (error) {
+      console.error("Error scanning developer:", error);
+      res.status(500).json({ error: "Failed to scan developer" });
     }
   });
 

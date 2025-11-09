@@ -1,0 +1,1 @@
+{ "worldId": "crystal_caverns", "worldName": "Crystal Caverns", "unlockCost": 100000, "currency": "gems", "areas": [{"name": "Crystal Entrance", "level": 1}, {"name": "Gem Mines", "level": 2}, {"name": "Crystal Core", "level": 3}], "pets": ["Crystal Wolf", "Gem Golem", "Shining Unicorn"], "secretArea": true, "requiresGamepass": false }
