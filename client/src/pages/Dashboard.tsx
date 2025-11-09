@@ -1,17 +1,18 @@
 import { useQuery } from "@tanstack/react-query";
+import { useState, useEffect } from "react";
 import { PerformanceWidget } from "@/components/PerformanceWidget";
 import { GameCard } from "@/components/GameCard";
-import { RecentlyPlayed } from "@/components/RecentlyPlayed";
-import { FriendActivity } from "@/components/FriendActivity";
-import { NewsCard } from "@/components/NewsCard";
-import { OptimizationPanel } from "@/components/OptimizationPanel";
-import { PerformanceChart } from "@/components/PerformanceChart";
-import { Cpu, Gauge, HardDrive, Wifi, TrendingUp } from "lucide-react";
+import { Cpu, Gauge, HardDrive, Thermometer, Zap } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Switch } from "@/components/ui/switch";
 
 export default function Dashboard() {
+  const [browserFps, setBrowserFps] = useState(60);
+  const [ping, setPing] = useState(0);
+  const [gameMode, setGameMode] = useState(false);
+  
   const { data: featuredGames = [], isLoading: loadingFeatured } = useQuery<any[]>({
     queryKey: ["/api/games/featured"],
   });
@@ -20,25 +21,61 @@ export default function Dashboard() {
     queryKey: ["/api/games/popular"],
   });
 
-  const { data: recentGames = [], isLoading: loadingRecent } = useQuery<any[]>({
-    queryKey: ["/api/games/recent"],
-  });
-
-  const { data: performance } = useQuery<any>({
-    queryKey: ["/api/performance"],
+  const { data: systemPerf } = useQuery<any>({
+    queryKey: ["/api/performance/system"],
     refetchInterval: 2000,
   });
 
-  const { data: friends = [] } = useQuery<any[]>({
-    queryKey: ["/api/friends"],
-  });
 
-  const { data: news = [] } = useQuery<any[]>({
-    queryKey: ["/api/news"],
-  });
+  useEffect(() => {
+    const times: number[] = [];
+    let lastTime = performance.now();
+    
+    function measureFPS() {
+      window.requestAnimationFrame(() => {
+        const now = performance.now();
+        
+        while (times.length > 0 && times[0] <= now - 1000) {
+          times.shift();
+        }
+        
+        times.push(now);
+        setBrowserFps(times.length);
+        
+        measureFPS();
+      });
+    }
+    
+    measureFPS();
 
-  const fpsData = performance?.fpsHistory || [];
-  const pingData = performance?.pingHistory || [];
+    const measurePing = async () => {
+      const start = performance.now();
+      try {
+        await fetch("/api/performance/system");
+        const latency = Math.round(performance.now() - start);
+        setPing(latency);
+      } catch (error) {
+        console.error("Ping measurement failed:", error);
+      }
+    };
+
+    measurePing();
+    const pingInterval = setInterval(measurePing, 5000);
+
+    return () => clearInterval(pingInterval);
+  }, []);
+
+  const handleGameMode = (enabled: boolean) => {
+    setGameMode(enabled);
+    console.log(`Game Mode ${enabled ? 'enabled' : 'disabled'}`);
+  };
+
+  const handleOptimize = () => {
+    console.log('Running system optimization...');
+    if ('gc' in window && typeof (window as any).gc === 'function') {
+      (window as any).gc();
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -47,60 +84,76 @@ export default function Dashboard() {
           Gaming Dashboard
         </h1>
         <p className="text-muted-foreground mt-1">
-          Monitor performance, optimize your system, and launch your favorite games
+          Monitor performance, optimize your system, and launch your favorite Roblox games
         </p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <PerformanceWidget
-          title="FPS"
-          value={performance?.fps || 144}
-          max={144}
+          title="BROWSER FPS"
+          value={browserFps}
+          max={60}
           icon={Gauge}
           color="primary"
-          trend="stable"
+          trend={browserFps >= 58 ? "stable" : browserFps >= 45 ? "down" : "down"}
         />
         <PerformanceWidget
-          title="CPU"
-          value={performance?.cpu || 42}
+          title="CPU USAGE"
+          value={systemPerf?.cpu || 0}
           max={100}
           unit="%"
           icon={Cpu}
           color="accent"
-          trend="down"
         />
         <PerformanceWidget
           title="RAM"
-          value={performance?.ram || 8.2}
-          max={16}
+          value={systemPerf?.ram || 0}
+          max={systemPerf?.ramTotal || 16}
           unit="GB"
           icon={HardDrive}
           color="chart-2"
-          trend="up"
         />
         <PerformanceWidget
           title="PING"
-          value={performance?.ping || 28}
+          value={ping}
           unit="ms"
-          icon={Wifi}
+          icon={Thermometer}
           color="primary"
-          trend="stable"
         />
       </div>
 
-      {recentGames && recentGames.length > 0 && (
-        <RecentlyPlayed games={recentGames} />
-      )}
+      <Card data-testid="card-optimization">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Zap className="h-5 w-5 text-primary" />
+            System Optimization
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="flex items-center justify-between gap-4">
+          <div className="flex items-center gap-3 flex-1">
+            <div>
+              <p className="font-medium text-sm">Game Mode</p>
+              <p className="text-xs text-muted-foreground">Prioritize gaming performance</p>
+            </div>
+          </div>
+          <Switch
+            checked={gameMode}
+            onCheckedChange={handleGameMode}
+            data-testid="switch-game-mode"
+          />
+          <Button onClick={handleOptimize} variant="default" data-testid="button-optimize">
+            <Zap className="h-4 w-4 mr-2" />
+            Optimize Now
+          </Button>
+        </CardContent>
+      </Card>
 
       <Tabs defaultValue="featured" className="w-full">
         <div className="flex items-center justify-between mb-4">
           <TabsList data-testid="tabs-game-categories">
-            <TabsTrigger value="featured" data-testid="tab-featured">Featured</TabsTrigger>
-            <TabsTrigger value="popular" data-testid="tab-popular">Popular</TabsTrigger>
+            <TabsTrigger value="featured" data-testid="tab-featured">Featured Games</TabsTrigger>
+            <TabsTrigger value="popular" data-testid="tab-popular">Popular Now</TabsTrigger>
           </TabsList>
-          <Button variant="outline" size="sm" data-testid="button-view-all">
-            View All Games
-          </Button>
         </div>
 
         <TabsContent value="featured" className="mt-0">
@@ -120,9 +173,8 @@ export default function Dashboard() {
                   thumbnail={game.thumbnail}
                   plays={game.visits}
                   rating={game.rating}
-                  lastPlayed={game.lastPlayed}
-                  isNew={game.isNew}
-                  isFavorite={game.isFavorite}
+                  launchUrl={game.launchUrl}
+                  webUrl={game.webUrl}
                 />
               ))}
             </div>
@@ -146,7 +198,8 @@ export default function Dashboard() {
                   thumbnail={game.thumbnail}
                   plays={game.visits}
                   rating={game.rating}
-                  isFavorite={game.isFavorite}
+                  launchUrl={game.launchUrl}
+                  webUrl={game.webUrl}
                 />
               ))}
             </div>
@@ -154,58 +207,6 @@ export default function Dashboard() {
         </TabsContent>
       </Tabs>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2 space-y-6">
-          <Card data-testid="card-performance-monitor">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
-              <CardTitle className="text-lg font-semibold">Performance Monitor</CardTitle>
-              <TrendingUp className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {fpsData.length > 0 && (
-                  <PerformanceChart
-                    title="FPS Over Time"
-                    data={fpsData}
-                    color="hsl(var(--primary))"
-                  />
-                )}
-                {pingData.length > 0 && (
-                  <PerformanceChart
-                    title="Ping Over Time"
-                    data={pingData}
-                    color="hsl(var(--accent))"
-                  />
-                )}
-              </div>
-            </CardContent>
-          </Card>
-
-          {news && news.length > 0 && (
-            <div>
-              <h2 className="text-xl font-semibold mb-4">Latest News</h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {news.slice(0, 4).map((item: any) => (
-                  <NewsCard
-                    key={item.id}
-                    id={item.id}
-                    title={item.title}
-                    excerpt={item.excerpt}
-                    image={item.image}
-                    category={item.category}
-                    timestamp={item.timestamp}
-                  />
-                ))}
-              </div>
-            </div>
-          )}
-        </div>
-
-        <div className="space-y-6">
-          <OptimizationPanel />
-          {friends && friends.length > 0 && <FriendActivity friends={friends} />}
-        </div>
-      </div>
     </div>
   );
 }

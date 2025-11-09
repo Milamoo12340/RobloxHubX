@@ -1,9 +1,12 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
-import { storage } from "./storage";
+import si from "systeminformation";
+import Parser from "rss-parser";
+
+const rssParser = new Parser();
 
 const ROBLOX_FEATURED_GAMES = [
-  8737899170, // Pet Simulator 99 (featured top)
+  8737899170, // Pet Simulator 99
   920587237,  // Adopt Me!
   2753915549, // Blox Fruits
   2440500124, // DOORS
@@ -108,9 +111,8 @@ async function fetchRobloxGame(placeId: number) {
     maxPlayers: details.maxPlayers,
     creator: details.creator,
     rating: Math.round(rating * 10) / 10,
-    url: `https://www.roblox.com/games/${details.rootPlaceId}`,
-    isNew: false,
-    isFavorite: false,
+    launchUrl: `roblox://experiences/start?placeId=${details.rootPlaceId}`,
+    webUrl: `https://www.roblox.com/games/${details.rootPlaceId}`,
   };
 }
 
@@ -122,12 +124,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
       );
       
       const validGames = games.filter(game => game !== null);
-      
-      if (validGames.length > 0) {
-        validGames[0].isNew = true;
-        validGames[0].isFavorite = true;
-      }
-      
       res.json(validGames);
     } catch (error) {
       console.error("Error fetching featured games:", error);
@@ -149,42 +145,59 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get("/api/games/recent", async (req, res) => {
-    const recentGames = storage.getRecentGames();
-    
-    const gamesWithDetails = await Promise.all(
-      recentGames.map(async (game) => {
-        const details = await fetchRobloxGame(game.placeId);
-        return {
-          ...details,
-          lastPlayed: game.lastPlayed,
-          playtime: game.playtime,
-        };
-      })
-    );
+  app.get("/api/performance/system", async (req, res) => {
+    try {
+      const [cpuLoad, mem, cpuTemp] = await Promise.all([
+        si.currentLoad(),
+        si.mem(),
+        si.cpuTemperature().catch(() => ({ main: null })),
+      ]);
 
-    res.json(gamesWithDetails.filter(game => game !== null));
+      res.json({
+        cpu: Math.round(cpuLoad.currentLoad * 10) / 10,
+        ram: Math.round((mem.used / 1024 / 1024 / 1024) * 100) / 100,
+        ramTotal: Math.round((mem.total / 1024 / 1024 / 1024) * 100) / 100,
+        ramPercent: Math.round((mem.used / mem.total) * 100 * 10) / 10,
+        temp: cpuTemp.main || null,
+      });
+    } catch (error) {
+      console.error("Error fetching system performance:", error);
+      res.status(500).json({ error: "Failed to fetch system performance" });
+    }
   });
 
-  app.get("/api/performance", (req, res) => {
-    res.json(storage.getPerformanceData());
-  });
+  app.get("/api/news", async (req, res) => {
+    try {
+      const feed = await rssParser.parseURL("https://corp.roblox.com/newsroom?feed=rss");
+      
+      const newsItems = feed.items.slice(0, 6).map((item, index) => ({
+        id: item.guid || index.toString(),
+        title: item.title || "Untitled",
+        excerpt: item.contentSnippet?.substring(0, 150) || item.summary?.substring(0, 150) || "",
+        url: item.link || "",
+        category: item.categories?.[0] || "News",
+        timestamp: item.pubDate ? new Date(item.pubDate).toLocaleDateString() : "Recently",
+        image: extractImageFromContent(item.content) || "https://images.unsplash.com/photo-1551918120-9739cb430c6d?w=400&h=225&fit=crop",
+      }));
 
-  app.get("/api/friends", (req, res) => {
-    res.json(storage.getFriends());
-  });
-
-  app.get("/api/news", (req, res) => {
-    res.json(storage.getNews());
-  });
-
-  app.post("/api/games/:placeId/launch", (req, res) => {
-    const placeId = parseInt(req.params.placeId);
-    storage.trackGameLaunch(placeId);
-    res.json({ success: true, url: `roblox://placeId=${placeId}` });
+      res.json(newsItems);
+    } catch (error) {
+      console.error("Error fetching Roblox news:", error);
+      res.json([]);
+    }
   });
 
   const httpServer = createServer(app);
-
   return httpServer;
+}
+
+function extractImageFromContent(content: string | undefined): string | null {
+  if (!content) return null;
+  
+  const imgMatch = content.match(/<img[^>]+src="([^">]+)"/);
+  if (imgMatch && imgMatch[1]) {
+    return imgMatch[1];
+  }
+  
+  return null;
 }

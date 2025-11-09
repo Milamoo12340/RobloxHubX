@@ -1,7 +1,6 @@
-import { Play, Star, Clock } from "lucide-react";
+import { Play, Star, ExternalLink } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 
 interface GameCardProps {
   id: string;
@@ -9,9 +8,8 @@ interface GameCardProps {
   thumbnail: string;
   plays: number;
   rating: number;
-  lastPlayed?: string;
-  isNew?: boolean;
-  isFavorite?: boolean;
+  launchUrl: string;
+  webUrl: string;
 }
 
 export function GameCard({
@@ -20,10 +18,20 @@ export function GameCard({
   thumbnail,
   plays,
   rating,
-  lastPlayed,
-  isNew,
-  isFavorite,
+  launchUrl,
+  webUrl,
 }: GameCardProps) {
+  
+  const handleLaunch = (e: React.MouseEvent) => {
+    e.preventDefault();
+    window.location.href = launchUrl;
+  };
+
+  const handleVisitWeb = (e: React.MouseEvent) => {
+    e.preventDefault();
+    window.open(webUrl, '_blank');
+  };
+
   return (
     <Card 
       className="group relative overflow-hidden hover-elevate active-elevate-2 cursor-pointer"
@@ -37,27 +45,27 @@ export function GameCard({
           data-testid={`img-game-${id}`}
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity">
-          <div className="absolute inset-0 flex items-center justify-center">
-            <Button size="icon" variant="default" data-testid={`button-play-${id}`}>
+          <div className="absolute inset-0 flex items-center justify-center gap-2">
+            <Button 
+              size="icon" 
+              variant="default" 
+              onClick={handleLaunch}
+              data-testid={`button-play-${id}`}
+              title="Launch in Roblox Client"
+            >
               <Play className="h-5 w-5" />
+            </Button>
+            <Button 
+              size="icon" 
+              variant="secondary" 
+              onClick={handleVisitWeb}
+              data-testid={`button-web-${id}`}
+              title="Visit on Roblox.com"
+            >
+              <ExternalLink className="h-4 w-4" />
             </Button>
           </div>
         </div>
-        {isNew && (
-          <Badge className="absolute top-2 left-2 bg-primary text-primary-foreground" data-testid={`badge-new-${id}`}>
-            NEW
-          </Badge>
-        )}
-        {isFavorite && (
-          <Button
-            size="icon"
-            variant="secondary"
-            className="absolute top-2 right-2 h-7 w-7"
-            data-testid={`button-favorite-${id}`}
-          >
-            <Star className="h-3.5 w-3.5 fill-current" />
-          </Button>
-        )}
       </div>
       <div className="p-3 space-y-2">
         <h3 className="font-semibold text-sm line-clamp-1" data-testid={`text-game-title-${id}`}>{title}</h3>
@@ -68,12 +76,6 @@ export function GameCard({
           </div>
           <span data-testid={`text-plays-${id}`}>{plays.toLocaleString()} plays</span>
         </div>
-        {lastPlayed && (
-          <div className="flex items-center gap-1 text-xs text-muted-foreground">
-            <Clock className="h-3 w-3" />
-            <span data-testid={`text-last-played-${id}`}>{lastPlayed}</span>
-          </div>
-        )}
       </div>
     </Card>
   );

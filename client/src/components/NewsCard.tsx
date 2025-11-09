@@ -1,6 +1,6 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Clock } from "lucide-react";
+import { Clock, ExternalLink } from "lucide-react";
 
 interface NewsCardProps {
   id: string;
@@ -9,21 +9,36 @@ interface NewsCardProps {
   image: string;
   category: string;
   timestamp: string;
+  url: string;
 }
 
-export function NewsCard({ id, title, excerpt, image, category, timestamp }: NewsCardProps) {
+export function NewsCard({ id, title, excerpt, image, category, timestamp, url }: NewsCardProps) {
+  const handleClick = () => {
+    window.open(url, '_blank');
+  };
+
   return (
-    <Card className="overflow-hidden hover-elevate active-elevate-2 cursor-pointer" data-testid={`card-news-${id}`}>
+    <Card 
+      className="overflow-hidden hover-elevate active-elevate-2 cursor-pointer" 
+      onClick={handleClick}
+      data-testid={`card-news-${id}`}
+    >
       <div className="aspect-video relative overflow-hidden bg-muted">
         <img
           src={image}
           alt={title}
           className="w-full h-full object-cover"
           data-testid={`img-news-${id}`}
+          onError={(e) => {
+            e.currentTarget.src = "https://images.unsplash.com/photo-1551918120-9739cb430c6d?w=400&h=225&fit=crop";
+          }}
         />
         <Badge className="absolute top-2 left-2" data-testid={`badge-category-${id}`}>
           {category}
         </Badge>
+        <div className="absolute top-2 right-2">
+          <ExternalLink className="h-4 w-4 text-white drop-shadow-lg" />
+        </div>
       </div>
       <CardContent className="p-4 space-y-2">
         <h3 className="font-semibold line-clamp-2" data-testid={`text-news-title-${id}`}>{title}</h3>
