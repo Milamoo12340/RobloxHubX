@@ -4,11 +4,13 @@ import { PerformanceWidget } from "@/components/PerformanceWidget";
 import { GameCard } from "@/components/GameCard";
 import { RobloxConnect } from "@/components/RobloxConnect";
 import { FriendsList } from "@/components/FriendsList";
-import { Cpu, Gauge, HardDrive, Thermometer, Zap } from "lucide-react";
+import { Cpu, Gauge, HardDrive, Thermometer, Zap, AlertCircle } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Switch } from "@/components/ui/switch";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Link } from "wouter";
 
 interface RobloxUser {
   id: number;
@@ -25,7 +27,6 @@ interface RobloxUser {
 export default function Dashboard() {
   const [browserFps, setBrowserFps] = useState(60);
   const [ping, setPing] = useState(0);
-  const [gameMode, setGameMode] = useState(false);
   const [linkedUser, setLinkedUser] = useState<RobloxUser | null>(null);
   
   const { data: featuredGames = [], isLoading: loadingFeatured } = useQuery<any[]>({
@@ -91,17 +92,6 @@ export default function Dashboard() {
     return () => clearInterval(pingInterval);
   }, []);
 
-  const handleGameMode = (enabled: boolean) => {
-    setGameMode(enabled);
-    console.log(`Game Mode ${enabled ? 'enabled' : 'disabled'}`);
-  };
-
-  const handleOptimize = () => {
-    console.log('Running system optimization...');
-    if ('gc' in window && typeof (window as any).gc === 'function') {
-      (window as any).gc();
-    }
-  };
 
   const handleUserLinked = (user: RobloxUser) => {
     setLinkedUser(user);
@@ -166,21 +156,16 @@ export default function Dashboard() {
           </CardTitle>
         </CardHeader>
         <CardContent className="flex items-center justify-between gap-4">
-          <div className="flex items-center gap-3 flex-1">
-            <div>
-              <p className="font-medium text-sm">Game Mode</p>
-              <p className="text-xs text-muted-foreground">Prioritize gaming performance</p>
-            </div>
+          <div className="flex-1">
+            <p className="font-medium text-sm mb-1">Optimize Your Gaming Experience</p>
+            <p className="text-xs text-muted-foreground">Access Game Mode, quick optimization, and performance tools</p>
           </div>
-          <Switch
-            checked={gameMode}
-            onCheckedChange={handleGameMode}
-            data-testid="switch-game-mode"
-          />
-          <Button onClick={handleOptimize} variant="default" data-testid="button-optimize">
-            <Zap className="h-4 w-4 mr-2" />
-            Optimize Now
-          </Button>
+          <Link href="/optimization">
+            <Button variant="default" data-testid="button-optimize">
+              <Zap className="h-4 w-4 mr-2" />
+              Go to Optimization
+            </Button>
+          </Link>
         </CardContent>
       </Card>
 
@@ -245,6 +230,14 @@ export default function Dashboard() {
 
       <div className="space-y-4">
         <h2 className="text-xl font-semibold">Roblox Friends</h2>
+        
+        <Alert data-testid="alert-roblox-api-restriction">
+          <AlertCircle className="h-4 w-4" />
+          <AlertDescription>
+            <strong>Network Restriction Notice:</strong> Roblox friend linking may not work in the Replit environment due to DNS restrictions blocking access to Roblox APIs. This feature will work with normal internet access.
+          </AlertDescription>
+        </Alert>
+
         <RobloxConnect
           onUserLinked={handleUserLinked}
           linkedUser={linkedUser}

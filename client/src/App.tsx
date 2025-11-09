@@ -11,12 +11,20 @@ import { ThemeToggle } from "@/components/ThemeToggle";
 import { Bell } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Dashboard from "@/pages/Dashboard";
+import GameLibrary from "@/pages/GameLibrary";
+import Performance from "@/pages/Performance";
+import Optimization from "@/pages/Optimization";
+import News from "@/pages/News";
 import NotFound from "@/pages/not-found";
 
 function Router() {
   return (
     <Switch>
       <Route path="/" component={Dashboard} />
+      <Route path="/library" component={GameLibrary} />
+      <Route path="/performance" component={Performance} />
+      <Route path="/optimization" component={Optimization} />
+      <Route path="/news" component={News} />
       <Route component={NotFound} />
     </Switch>
   );

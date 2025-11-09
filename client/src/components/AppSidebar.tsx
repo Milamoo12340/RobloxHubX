@@ -14,10 +14,10 @@ import {
 
 const menuItems = [
   { title: "Dashboard", url: "/", icon: Home },
-  { title: "Game Library", url: "/", icon: Library },
-  { title: "Performance", url: "/", icon: Gauge },
-  { title: "Optimization", url: "/", icon: Zap },
-  { title: "News", url: "/", icon: Newspaper },
+  { title: "Game Library", url: "/library", icon: Library },
+  { title: "Performance", url: "/performance", icon: Gauge },
+  { title: "Optimization", url: "/optimization", icon: Zap },
+  { title: "News", url: "/news", icon: Newspaper },
 ];
 
 export function AppSidebar() {
