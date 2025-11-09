@@ -2,16 +2,31 @@ import { useQuery } from "@tanstack/react-query";
 import { useState, useEffect } from "react";
 import { PerformanceWidget } from "@/components/PerformanceWidget";
 import { GameCard } from "@/components/GameCard";
+import { RobloxConnect } from "@/components/RobloxConnect";
+import { FriendsList } from "@/components/FriendsList";
 import { Cpu, Gauge, HardDrive, Thermometer, Zap } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Switch } from "@/components/ui/switch";
 
+interface RobloxUser {
+  id: number;
+  username: string;
+  displayName: string;
+  description: string;
+  avatar: string | null;
+  hasVerifiedBadge: boolean;
+  presence: {
+    userPresenceType: number;
+  };
+}
+
 export default function Dashboard() {
   const [browserFps, setBrowserFps] = useState(60);
   const [ping, setPing] = useState(0);
   const [gameMode, setGameMode] = useState(false);
+  const [linkedUser, setLinkedUser] = useState<RobloxUser | null>(null);
   
   const { data: featuredGames = [], isLoading: loadingFeatured } = useQuery<any[]>({
     queryKey: ["/api/games/featured"],
@@ -26,6 +41,17 @@ export default function Dashboard() {
     refetchInterval: 2000,
   });
 
+
+  useEffect(() => {
+    const stored = localStorage.getItem('linkedRobloxUser');
+    if (stored) {
+      try {
+        setLinkedUser(JSON.parse(stored));
+      } catch (e) {
+        console.error("Failed to parse stored user:", e);
+      }
+    }
+  }, []);
 
   useEffect(() => {
     const times: number[] = [];
@@ -75,6 +101,16 @@ export default function Dashboard() {
     if ('gc' in window && typeof (window as any).gc === 'function') {
       (window as any).gc();
     }
+  };
+
+  const handleUserLinked = (user: RobloxUser) => {
+    setLinkedUser(user);
+    localStorage.setItem('linkedRobloxUser', JSON.stringify(user));
+  };
+
+  const handleDisconnect = () => {
+    setLinkedUser(null);
+    localStorage.removeItem('linkedRobloxUser');
   };
 
   return (
@@ -206,6 +242,21 @@ export default function Dashboard() {
           )}
         </TabsContent>
       </Tabs>
+
+      <div className="space-y-4">
+        <h2 className="text-xl font-semibold">Roblox Friends</h2>
+        <RobloxConnect
+          onUserLinked={handleUserLinked}
+          linkedUser={linkedUser}
+          onDisconnect={handleDisconnect}
+        />
+        {linkedUser && (
+          <div>
+            <h3 className="text-lg font-medium mb-4">Friends List</h3>
+            <FriendsList userId={linkedUser.id} />
+          </div>
+        )}
+      </div>
 
     </div>
   );

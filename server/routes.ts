@@ -187,6 +187,136 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.get("/api/roblox/user/:username", async (req, res) => {
+    try {
+      const { username } = req.params;
+      
+      const userResponse = await fetch(
+        `https://api.roblox.com/users/get-by-username?username=${encodeURIComponent(username)}`
+      );
+      
+      if (!userResponse.ok) {
+        return res.status(userResponse.status).json({ error: "Failed to fetch user from Roblox" });
+      }
+      
+      const userData = await userResponse.json();
+      
+      if (!userData.Id) {
+        return res.status(404).json({ error: "User not found" });
+      }
+
+      const [detailsResponse, presenceResponse, avatarResponse] = await Promise.all([
+        fetch(`https://users.roblox.com/v1/users/${userData.Id}`),
+        fetch(`https://presence.roblox.com/v1/presence/users`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ userIds: [userData.Id] })
+        }),
+        fetch(`https://thumbnails.roblox.com/v1/users/avatar-headshot?userIds=${userData.Id}&size=150x150&format=Png`)
+      ]);
+
+      if (!detailsResponse.ok || !presenceResponse.ok || !avatarResponse.ok) {
+        throw new Error("One or more Roblox API requests failed");
+      }
+
+      const details = await detailsResponse.json();
+      const presence = await presenceResponse.json();
+      const avatar = await avatarResponse.json();
+
+      if (details.errors || presence.errors || avatar.errors) {
+        throw new Error("Roblox API returned error payload");
+      }
+
+      res.json({
+        id: userData.Id,
+        username: details.name || userData.Username,
+        displayName: details.displayName || details.name || userData.Username,
+        description: details.description || "",
+        created: details.created || null,
+        isBanned: details.isBanned || false,
+        hasVerifiedBadge: details.hasVerifiedBadge || false,
+        presence: presence.userPresences?.[0] || { userPresenceType: 0 },
+        avatar: avatar.data?.[0]?.imageUrl || null,
+      });
+    } catch (error) {
+      console.error("Error fetching Roblox user:", error);
+      res.status(500).json({ error: "Failed to fetch user data" });
+    }
+  });
+
+  app.get("/api/roblox/user/:userId/friends", async (req, res) => {
+    try {
+      const { userId } = req.params;
+      
+      const friendsResponse = await fetch(
+        `https://friends.roblox.com/v1/users/${userId}/friends`
+      );
+      
+      if (!friendsResponse.ok) {
+        return res.status(friendsResponse.status).json({ error: "Failed to fetch friends from Roblox" });
+      }
+      
+      const friendsData = await friendsResponse.json();
+      
+      if (friendsData.errors || !friendsData.data) {
+        return res.json([]);
+      }
+
+      const friendIds = friendsData.data.slice(0, 50).map((f: any) => f.id);
+      
+      if (friendIds.length === 0) {
+        return res.json([]);
+      }
+
+      const [presenceResponse, avatarResponse] = await Promise.all([
+        fetch(`https://presence.roblox.com/v1/presence/users`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ userIds: friendIds })
+        }),
+        fetch(`https://thumbnails.roblox.com/v1/users/avatar-headshot?userIds=${friendIds.join(',')}&size=150x150&format=Png`)
+      ]);
+
+      if (!presenceResponse.ok || !avatarResponse.ok) {
+        console.error("Failed to fetch presence or avatars, continuing with partial data");
+      }
+
+      const presenceData = presenceResponse.ok ? await presenceResponse.json() : { userPresences: [] };
+      const avatarData = avatarResponse.ok ? await avatarResponse.json() : { data: [] };
+
+      const presenceMap = new Map(
+        presenceData.userPresences?.map((p: any) => [p.userId, p]) || []
+      );
+      const avatarMap = new Map(
+        avatarData.data?.map((a: any) => [a.targetId, a.imageUrl]) || []
+      );
+
+      const enrichedFriends = friendsData.data.slice(0, 50).map((friend: any) => {
+        const presence: any = presenceMap.get(friend.id) || { userPresenceType: 0 };
+        
+        return {
+          id: friend.id,
+          username: friend.name,
+          displayName: friend.displayName || friend.name,
+          isOnline: friend.isOnline || false,
+          presenceType: presence.userPresenceType || 0,
+          lastLocation: presence.lastLocation || null,
+          placeId: presence.placeId || null,
+          rootPlaceId: presence.rootPlaceId || null,
+          gameId: presence.gameId || null,
+          universeId: presence.universeId || null,
+          avatar: avatarMap.get(friend.id) || null,
+          hasVerifiedBadge: friend.hasVerifiedBadge || false,
+        };
+      });
+
+      res.json(enrichedFriends);
+    } catch (error) {
+      console.error("Error fetching friends:", error);
+      res.status(500).json({ error: "Failed to fetch friends list" });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }
