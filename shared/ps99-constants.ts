@@ -61,6 +61,8 @@ export const ROBLOX_API = {
   THUMBNAILS: 'https://thumbnails.roblox.com/v1',
   PRESENCE: 'https://presence.roblox.com/v1',
   ASSET_DELIVERY: 'https://assetdelivery.roblox.com/v1',
+  BADGES: 'https://badges.roblox.com/v1',
+  DEVELOP: 'https://develop.roblox.com/v1',
 } as const;
 
 // PS99 Official API

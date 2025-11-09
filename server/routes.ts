@@ -6,6 +6,7 @@ import { storage } from "./storage";
 import { insertPS99AssetSchema } from "@shared/schema";
 import { ALL_PS99_DEVELOPERS, ROBLOX_API, LEAK_KEYWORDS } from "@shared/ps99-constants";
 import { robloxProxy } from "./roblox-proxy-service";
+import { PS99Scanner } from "./ps99-scanner";
 
 const rssParser = new Parser();
 
@@ -389,6 +390,29 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error scanning developer:", error);
       res.status(500).json({ error: "Failed to scan developer" });
+    }
+  });
+
+  app.post("/api/ps99/scan", async (req, res) => {
+    try {
+      console.log('🚀 Starting full PS99 asset scan...');
+      const scanner = new PS99Scanner();
+      const scanResults = await scanner.scanAll();
+      
+      res.json(scanResults);
+    } catch (error: any) {
+      console.error("Error during PS99 scan:", error);
+      res.status(500).json({ error: error.message || "Failed to scan PS99 assets" });
+    }
+  });
+
+  app.get("/api/ps99/scan/stats", async (req, res) => {
+    try {
+      const stats = robloxProxy.getStats();
+      res.json(stats);
+    } catch (error) {
+      console.error("Error fetching scan stats:", error);
+      res.status(500).json({ error: "Failed to fetch stats" });
     }
   });
 
