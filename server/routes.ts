@@ -5,6 +5,7 @@ import Parser from "rss-parser";
 import { storage } from "./storage";
 import { insertPS99AssetSchema } from "@shared/schema";
 import { ALL_PS99_DEVELOPERS, ROBLOX_API, LEAK_KEYWORDS } from "@shared/ps99-constants";
+import { robloxProxy } from "./roblox-proxy-service";
 
 const rssParser = new Parser();
 
@@ -48,10 +49,9 @@ interface RobloxGameDetails {
 
 async function getUniverseIdFromPlaceId(placeId: number): Promise<number | null> {
   try {
-    const response = await fetch(
+    const data = await robloxProxy.get(
       `https://games.roblox.com/v1/games/multiget-place-details?placeIds=${placeId}`
     );
-    const data = await response.json();
     return data[0]?.universeId || null;
   } catch (error) {
     console.error(`Error fetching universe ID for place ${placeId}:`, error);
@@ -61,10 +61,9 @@ async function getUniverseIdFromPlaceId(placeId: number): Promise<number | null>
 
 async function getGameDetails(universeId: number): Promise<RobloxGameDetails | null> {
   try {
-    const response = await fetch(
+    const data = await robloxProxy.get(
       `https://games.roblox.com/v1/games?universeIds=${universeId}`
     );
-    const data = await response.json();
     return data.data[0] || null;
   } catch (error) {
     console.error(`Error fetching game details for universe ${universeId}:`, error);
@@ -74,10 +73,9 @@ async function getGameDetails(universeId: number): Promise<RobloxGameDetails | n
 
 async function getGameThumbnail(universeId: number): Promise<string | null> {
   try {
-    const response = await fetch(
+    const data = await robloxProxy.get(
       `https://thumbnails.roblox.com/v1/games/multiget/thumbnails?universeIds=${universeId}&size=768x432&format=Png&isCircular=false`
     );
-    const data = await response.json();
     return data.data[0]?.thumbnails[0]?.imageUrl || null;
   } catch (error) {
     console.error(`Error fetching thumbnail for universe ${universeId}:`, error);
@@ -194,37 +192,29 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { username } = req.params;
       
-      const userResponse = await fetch(
+      const userData = await robloxProxy.get(
         `https://api.roblox.com/users/get-by-username?username=${encodeURIComponent(username)}`
       );
-      
-      if (!userResponse.ok) {
-        return res.status(userResponse.status).json({ error: "Failed to fetch user from Roblox" });
-      }
-      
-      const userData = await userResponse.json();
       
       if (!userData.Id) {
         return res.status(404).json({ error: "User not found" });
       }
 
-      const [detailsResponse, presenceResponse, avatarResponse] = await Promise.all([
-        fetch(`https://users.roblox.com/v1/users/${userData.Id}`),
+      const [details, presenceResponse, avatar] = await Promise.all([
+        robloxProxy.get(`https://users.roblox.com/v1/users/${userData.Id}`),
         fetch(`https://presence.roblox.com/v1/presence/users`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ userIds: [userData.Id] })
         }),
-        fetch(`https://thumbnails.roblox.com/v1/users/avatar-headshot?userIds=${userData.Id}&size=150x150&format=Png`)
+        robloxProxy.get(`https://thumbnails.roblox.com/v1/users/avatar-headshot?userIds=${userData.Id}&size=150x150&format=Png`)
       ]);
 
-      if (!detailsResponse.ok || !presenceResponse.ok || !avatarResponse.ok) {
-        throw new Error("One or more Roblox API requests failed");
+      if (!presenceResponse.ok) {
+        throw new Error("Presence API request failed");
       }
 
-      const details = await detailsResponse.json();
       const presence = await presenceResponse.json();
-      const avatar = await avatarResponse.json();
 
       if (details.errors || presence.errors || avatar.errors) {
         throw new Error("Roblox API returned error payload");
@@ -251,15 +241,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { userId } = req.params;
       
-      const friendsResponse = await fetch(
+      const friendsData = await robloxProxy.get(
         `https://friends.roblox.com/v1/users/${userId}/friends`
       );
-      
-      if (!friendsResponse.ok) {
-        return res.status(friendsResponse.status).json({ error: "Failed to fetch friends from Roblox" });
-      }
-      
-      const friendsData = await friendsResponse.json();
       
       if (friendsData.errors || !friendsData.data) {
         return res.json([]);
@@ -271,21 +255,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.json([]);
       }
 
-      const [presenceResponse, avatarResponse] = await Promise.all([
+      const [presenceResponse, avatarData] = await Promise.all([
         fetch(`https://presence.roblox.com/v1/presence/users`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ userIds: friendIds })
         }),
-        fetch(`https://thumbnails.roblox.com/v1/users/avatar-headshot?userIds=${friendIds.join(',')}&size=150x150&format=Png`)
+        robloxProxy.get(`https://thumbnails.roblox.com/v1/users/avatar-headshot?userIds=${friendIds.join(',')}&size=150x150&format=Png`)
       ]);
 
-      if (!presenceResponse.ok || !avatarResponse.ok) {
-        console.error("Failed to fetch presence or avatars, continuing with partial data");
+      if (!presenceResponse.ok) {
+        console.error("Failed to fetch presence, continuing with partial data");
       }
 
       const presenceData = presenceResponse.ok ? await presenceResponse.json() : { userPresences: [] };
-      const avatarData = avatarResponse.ok ? await avatarResponse.json() : { data: [] };
 
       const presenceMap = new Map(
         presenceData.userPresences?.map((p: any) => [p.userId, p]) || []
@@ -392,15 +375,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ error: "Developer not found" });
       }
 
-      const response = await fetch(
+      const userData = await robloxProxy.get(
         `${ROBLOX_API.USERS}/users/${devId}`
       );
-      
-      if (!response.ok) {
-        throw new Error("Failed to fetch developer from Roblox API");
-      }
-
-      const userData = await response.json();
       
       res.json({
         ...developer,

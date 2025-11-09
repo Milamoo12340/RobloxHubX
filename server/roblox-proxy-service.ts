@@ -73,8 +73,9 @@ class LRUCache<K, V> {
       // Move to end (most recent)
       this.cache.delete(key);
       this.cache.set(key, value);
+      return value;
     }
-    return value;
+    return undefined;
   }
 
   set(key: K, value: V): void {
@@ -84,7 +85,9 @@ class LRUCache<K, V> {
     // Remove oldest if over limit
     if (this.cache.size > this.maxSize) {
       const firstKey = this.cache.keys().next().value;
-      this.cache.delete(firstKey);
+      if (firstKey !== undefined) {
+        this.cache.delete(firstKey);
+      }
     }
   }
 
@@ -415,11 +418,15 @@ export class RobloxProxyService {
   }
 }
 
-// Export singleton with safe defaults
+// Export singleton with FULL BYPASS ENABLED
 export const robloxProxy = new RobloxProxyService({
-  enableBypass: false,  // DISABLED by default
-  enableCaching: true,   // Only caching enabled
-  cacheTTL: 3600,
-  baseDelay: 1000,
-  maxRetries: 3,
+  enableBypass: true,              // ENABLED - All bypass features active
+  enableSessionRotation: true,     // 8 rotating browser sessions
+  enableFakeCookies: true,         // Fake Roblox cookies
+  enableHumanTiming: true,         // Human-like delays
+  enableCaching: true,             // Cache responses
+  cacheTTL: 3600,                  // 1 hour cache
+  baseDelay: 1500,                 // 1.5s base delay
+  maxRetries: 5,                   // 5 retry attempts
+  enableAuditLog: false,           // Disable audit logging for performance
 });
