@@ -1,0 +1,35 @@
+import { defineConfig } from 'vite';
+import { resolve } from 'path';
+
+export default defineConfig({
+  // Elevate permissions if necessary
+  server: {
+    port: 3000,
+    open: true,
+    fs: {
+      // Allow serving files from one level up to the project root
+      allow: ['..']
+    }
+  },
+  
+  // Fix the missing vite.config by defining a configuration
+  build: {
+    rollupOptions: {
+      input: {
+        main: resolve(__dirname, 'index.html'),
+      },
+    },
+    outDir: 'dist',
+  },
+
+  // Bypass scan issues by adjusting scan configuration
+  optimizeDeps: {
+    entries: 'src/**/*.js',
+    exclude: ['some-large-module'], // Exclude any modules that cause issues
+  },
+
+  // Creating a working scan without errors
+  plugins: [
+    // Add any required plugins here
+  ],
+});
