@@ -13,7 +13,8 @@
  */
 
 import { robloxProxy } from "./roblox-proxy-service";
-import { ALL_PS99_DEVELOPERS, PS99_CORE_DEVELOPERS, BIG_GAMES_GROUPS, ROBLOX_API, LEAK_KEYWORDS } from "@shared/ps99-constants";
+import { ALL_PS99_DEVELOPERS, ROBLOX_API, LEAK_KEYWORDS } from "../shared/ps99-constants.js";
+import { insertPS99AssetSchema, type InsertPS99Asset } from "../shared/schema.js";
 
 const PS99_UNIVERSE_ID = 3317771874;
 const PS99_PLACE_ID = 8737899170;
@@ -68,14 +69,14 @@ export class PS99Scanner {
     try {
       console.log('🔍 Starting comprehensive PS99 asset scan...');
       console.log('⏰ Filtering to assets from last 72 hours only');
-      
+
       // Original scanning methods
       await this.scanGamePasses();
       await this.scanBadges();
       await this.scanDeveloperProducts();
       await this.scanPlaceInfo();
       await this.scanUniverseInfo();
-      
+
       // NEW: Advanced PUBLIC API scanning methods
       await this.scanCatalogByCreators();
       await this.scanMarketplace();
@@ -83,7 +84,7 @@ export class PS99Scanner {
       await this.scanGroupAssets();
       await this.scanDeveloperAssets();
       await this.scanCatalogByKeywords();
-      
+
       // Filter to 72 hours
       const cutoffTime = Date.now() - HOURS_72_MS;
       const filteredResults = this.results.filter(result => {
@@ -91,20 +92,20 @@ export class PS99Scanner {
         const resultDate = new Date(result.created || result.updated || '').getTime();
         return resultDate >= cutoffTime;
       });
-      
+
       this.results = filteredResults;
-      
+
       const duration = Date.now() - startTime;
       const stats = this.calculateStats();
-      
+
       console.log(`✅ Scan complete! Found ${this.results.length} assets from last 72 hours in ${(duration/1000).toFixed(1)}s`);
-      
+
       return {
         results: this.results,
         stats,
         duration
       };
-      
+
     } finally {
       this.isScanning = false;
     }
@@ -129,11 +130,11 @@ export class PS99Scanner {
   private async scanGamePasses(): Promise<void> {
     try {
       console.log('📜 Scanning game passes...');
-      
+
       const response = await robloxProxy.get(
         `${ROBLOX_API.GAMES}/games/${PS99_UNIVERSE_ID}/game-passes?limit=100&sortOrder=Desc`
       );
-      
+
       if (response?.data) {
         for (const gamepass of response.data) {
           this.results.push({
@@ -155,7 +156,7 @@ export class PS99Scanner {
           });
         }
       }
-      
+
       this.scanProgress++;
     } catch (error) {
       console.error('Error scanning game passes:', error);
@@ -165,11 +166,11 @@ export class PS99Scanner {
   private async scanBadges(): Promise<void> {
     try {
       console.log('🏆 Scanning badges...');
-      
+
       const response = await robloxProxy.get(
         `${ROBLOX_API.BADGES}/universes/${PS99_UNIVERSE_ID}/badges?limit=100&sortOrder=Desc`
       );
-      
+
       if (response?.data) {
         for (const badge of response.data) {
           this.results.push({
@@ -190,7 +191,7 @@ export class PS99Scanner {
           });
         }
       }
-      
+
       this.scanProgress++;
     } catch (error) {
       console.error('Error scanning badges:', error);
@@ -200,11 +201,11 @@ export class PS99Scanner {
   private async scanDeveloperProducts(): Promise<void> {
     try {
       console.log('💰 Scanning developer products...');
-      
+
       const response = await robloxProxy.get(
         `${ROBLOX_API.DEVELOP}/universes/${PS99_UNIVERSE_ID}/developerproducts?page=1&pageSize=100`
       );
-      
+
       if (response?.data) {
         for (const product of response.data) {
           this.results.push({
@@ -222,7 +223,7 @@ export class PS99Scanner {
           });
         }
       }
-      
+
       this.scanProgress++;
     } catch (error) {
       console.error('Error scanning developer products:', error);
@@ -232,14 +233,14 @@ export class PS99Scanner {
   private async scanPlaceInfo(): Promise<void> {
     try {
       console.log('🎮 Scanning place information...');
-      
+
       const response = await robloxProxy.get(
         `${ROBLOX_API.GAMES}/multiget-place-details?placeIds=${PS99_PLACE_ID}`
       );
-      
+
       if (response && response.length > 0) {
         const placeData = response[0];
-        
+
         this.results.push({
           type: 'place_update',
           id: placeData.placeId.toString(),
@@ -260,7 +261,7 @@ export class PS99Scanner {
           }
         });
       }
-      
+
       this.scanProgress++;
     } catch (error) {
       console.error('Error scanning place info:', error);
@@ -270,14 +271,14 @@ export class PS99Scanner {
   private async scanUniverseInfo(): Promise<void> {
     try {
       console.log('🌌 Scanning universe information...');
-      
+
       const response = await robloxProxy.get(
         `${ROBLOX_API.GAMES}/games?universeIds=${PS99_UNIVERSE_ID}`
       );
-      
+
       if (response?.data && response.data.length > 0) {
         const universeData = response.data[0];
-        
+
         this.results.push({
           type: 'place_update',
           id: `universe-${universeData.id}`,
@@ -301,7 +302,7 @@ export class PS99Scanner {
           }
         });
       }
-      
+
       this.scanProgress++;
     } catch (error) {
       console.error('Error scanning universe info:', error);
@@ -311,14 +312,14 @@ export class PS99Scanner {
   private async scanDeveloperAssets(): Promise<void> {
     try {
       console.log('👤 Scanning developer assets...');
-      
+
       // Scan Preston's recent assets (creator of PS99)
       const prestonId = 19717956;
-      
+
       const inventoryResponse = await robloxProxy.get(
         `${ROBLOX_API.INVENTORY}/users/${prestonId}/inventory/Decal?sortOrder=Desc&limit=50`
       );
-      
+
       if (inventoryResponse?.data) {
         for (const asset of inventoryResponse.data.slice(0, 20)) {
           this.results.push({
@@ -336,7 +337,7 @@ export class PS99Scanner {
           });
         }
       }
-      
+
       this.scanProgress++;
     } catch (error) {
       console.error('Error scanning developer assets:', error);
@@ -348,14 +349,14 @@ export class PS99Scanner {
   private async scanCatalogByCreators(): Promise<void> {
     try {
       console.log('🔍 Scanning catalog by creators (PUBLIC API)...');
-      
+
       // Scan top priority developers using catalog search API
       for (const dev of PS99_CORE_DEVELOPERS.slice(0, 3)) {
         try {
           const response = await robloxProxy.get(
             `${ROBLOX_API.CATALOG}/search/items?category=All&creatorTargetId=${dev.id}&creatorType=User&limit=30&sortType=Updated`
           );
-          
+
           if (response?.data) {
             for (const item of response.data) {
               this.results.push({
@@ -381,7 +382,7 @@ export class PS99Scanner {
           console.error(`Error scanning catalog for ${dev.username}:`, error);
         }
       }
-      
+
       this.scanProgress++;
     } catch (error) {
       console.error('Error in catalog scan:', error);
@@ -391,16 +392,16 @@ export class PS99Scanner {
   private async scanMarketplace(): Promise<void> {
     try {
       console.log('🛒 Scanning Roblox marketplace (PUBLIC API)...');
-      
+
       const searchTerms = ['pet simulator 99', 'ps99', 'big games'];
-      
+
       for (const term of searchTerms) {
         try {
           // Note: This endpoint might be deprecated - testing it
           const response = await robloxProxy.get(
             `https://search.roblox.com/catalog/json?Category=All&Keyword=${encodeURIComponent(term)}&ResultsPerPage=30`
           );
-          
+
           if (response && Array.isArray(response)) {
             for (const item of response) {
               this.results.push({
@@ -424,7 +425,7 @@ export class PS99Scanner {
           console.error(`Error searching marketplace for ${term}:`, error);
         }
       }
-      
+
       this.scanProgress++;
     } catch (error) {
       console.error('Error in marketplace scan:', error);
@@ -434,17 +435,17 @@ export class PS99Scanner {
   private async scanDeveloperInventories(): Promise<void> {
     try {
       console.log('📦 Scanning developer inventories (PUBLIC API)...');
-      
+
       // Scan Preston's inventory for recent PS99 assets
       const prestonId = 19717956;
       const assetTypes = ['Model', 'Decal', 'Audio', 'MeshPart'];
-      
+
       for (const assetType of assetTypes.slice(0, 2)) {
         try {
           const response = await robloxProxy.get(
             `${ROBLOX_API.INVENTORY}/users/${prestonId}/inventory/${assetType}?sortOrder=Desc&limit=30`
           );
-          
+
           if (response?.data) {
             for (const item of response.data) {
               this.results.push({
@@ -467,7 +468,7 @@ export class PS99Scanner {
           console.error(`Error scanning inventory for ${assetType}:`, error);
         }
       }
-      
+
       this.scanProgress++;
     } catch (error) {
       console.error('Error in inventory scan:', error);
@@ -477,24 +478,24 @@ export class PS99Scanner {
   private async scanGroupAssets(): Promise<void> {
     try {
       console.log('🏢 Scanning BIG Games group assets (PUBLIC API)...');
-      
+
       // Scan main BIG Games groups
       const groupsToScan = [
         { id: BIG_GAMES_GROUPS.MAIN, name: 'BIG Games' },
         { id: BIG_GAMES_GROUPS.PETS, name: 'BIG Games Pets' },
       ];
-      
+
       for (const group of groupsToScan) {
         try {
           const response = await robloxProxy.get(
             `${ROBLOX_API.GROUPS}/groups/${group.id}/wall/posts?sortOrder=Desc&limit=10`
           );
-          
+
           // Also try catalog search for group
           const catalogResponse = await robloxProxy.get(
             `${ROBLOX_API.CATALOG}/search/items?category=All&creatorTargetId=${group.id}&creatorType=Group&limit=30&sortType=Updated`
           );
-          
+
           if (catalogResponse?.data) {
             for (const item of catalogResponse.data) {
               this.results.push({
@@ -519,7 +520,7 @@ export class PS99Scanner {
           console.error(`Error scanning group ${group.name}:`, error);
         }
       }
-      
+
       this.scanProgress++;
     } catch (error) {
       console.error('Error in group assets scan:', error);
@@ -529,15 +530,15 @@ export class PS99Scanner {
   private async scanCatalogByKeywords(): Promise<void> {
     try {
       console.log('🔑 Scanning catalog by PS99 keywords (PUBLIC API)...');
-      
+
       const keywords = ['anubis ps99', 'egypt pet simulator', 'update55 ps99'];
-      
+
       for (const keyword of keywords) {
         try {
           const response = await robloxProxy.get(
             `${ROBLOX_API.CATALOG}/search/items?keyword=${encodeURIComponent(keyword)}&limit=20&sortType=Updated`
           );
-          
+
           if (response?.data) {
             for (const item of response.data) {
               this.results.push({
@@ -562,7 +563,7 @@ export class PS99Scanner {
           console.error(`Error searching for keyword ${keyword}:`, error);
         }
       }
-      
+
       this.scanProgress++;
     } catch (error) {
       console.error('Error in keyword scan:', error);

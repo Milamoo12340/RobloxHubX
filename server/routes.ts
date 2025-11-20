@@ -3,7 +3,7 @@ import { createServer, type Server } from "http";
 import si from "systeminformation";
 import Parser from "rss-parser";
 import { storage } from "./storage";
-import { insertPS99AssetSchema } from "@shared/schema";
+import { insertPS99AssetSchema } from "../shared/schema.js";
 import { ALL_PS99_DEVELOPERS, ROBLOX_API, LEAK_KEYWORDS } from "@shared/ps99-constants";
 import { robloxProxy } from "./roblox-proxy-service";
 import { PS99Scanner } from "./ps99-scanner";
