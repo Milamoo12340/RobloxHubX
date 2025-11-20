@@ -9,6 +9,76 @@ class MemoryStorage {
   private ps99Assets = new Map<string, PS99Asset>();
   private ps99ScanProgress = new Map<string, PS99ScanProgress>();
 
+  constructor() {
+    this.initializeSampleData();
+  }
+
+  private initializeSampleData() {
+    // Add some sample PS99 leak data for testing
+    const sampleAssets: PS99Asset[] = [
+      {
+        id: '1',
+        assetId: 123456789,
+        name: 'Huge Mythical Dragon',
+        description: 'A legendary huge pet discovered in update 55 files',
+        assetType: 'Pet',
+        creatorId: 19717956,
+        creatorName: 'Preston',
+        discoveredDate: new Date(Date.now() - 2 * 60 * 60 * 1000), // 2 hours ago
+        thumbnailUrl: 'https://via.placeholder.com/150x150?text=Huge+Dragon',
+        isSignificant: true,
+        verified: true,
+        matchedKeywords: ['huge', 'mythical', 'update'],
+      },
+      {
+        id: '2',
+        assetId: 987654321,
+        name: 'Cosmic Egg',
+        description: 'New egg type found in game files - possibly for upcoming space world',
+        assetType: 'Egg',
+        creatorId: 1493409,
+        creatorName: 'CoderQwerty',
+        discoveredDate: new Date(Date.now() - 5 * 60 * 60 * 1000), // 5 hours ago
+        thumbnailUrl: 'https://via.placeholder.com/150x150?text=Cosmic+Egg',
+        isSignificant: true,
+        verified: false,
+        matchedKeywords: ['cosmic', 'egg', 'new'],
+      },
+      {
+        id: '3',
+        assetId: 456789123,
+        name: 'Anubis Pet Texture',
+        description: 'New texture file suggesting Egyptian/Anubis themed pets coming soon',
+        assetType: 'Texture',
+        creatorId: 13365322,
+        creatorName: 'chickenputty',
+        discoveredDate: new Date(Date.now() - 8 * 60 * 60 * 1000), // 8 hours ago
+        thumbnailUrl: 'https://via.placeholder.com/150x150?text=Anubis+Texture',
+        isSignificant: true,
+        verified: false,
+        matchedKeywords: ['anubis', 'egypt', 'texture', 'pet'],
+      },
+      {
+        id: '4',
+        assetId: 789123456,
+        name: 'Test Badge - Update 56',
+        description: 'Internal test badge for upcoming update features',
+        assetType: 'Badge',
+        creatorId: 7707349,
+        creatorName: 'JamienChee',
+        discoveredDate: new Date(Date.now() - 12 * 60 * 60 * 1000), // 12 hours ago
+        thumbnailUrl: 'https://via.placeholder.com/150x150?text=Test+Badge',
+        isSignificant: false,
+        verified: false,
+        matchedKeywords: ['test', 'update56', 'badge'],
+      },
+    ];
+
+    sampleAssets.forEach(asset => {
+      this.ps99Assets.set(asset.id, asset);
+    });
+  }
+
   async getUser(id: string): Promise<User | undefined> {
     return this.users.get(id);
   }
