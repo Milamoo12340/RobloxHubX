@@ -1,7 +1,7 @@
 import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
-import { testConnection } from "./db";
+import { testConnection, db } from "./db.js";
 
 const app = express();
 
@@ -48,9 +48,14 @@ app.use((req, res, next) => {
 });
 
 (async () => {
-  // Test database connection
-  await testConnection();
-  
+  // Test database connection on startup
+  const dbConnected = await testConnection();
+  if (dbConnected) {
+    console.log("✅ Database ready");
+  } else {
+    console.log("⚠️  Database not configured - app will run with limited functionality");
+  }
+
   const server = await registerRoutes(app);
 
   app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
