@@ -48,6 +48,8 @@
   --font-mono: 'JetBrains Mono', monospace;
   
   --radius: 0.5rem;
+  --sidebar-width: 16rem;
+  --sidebar-width-icon: 3rem;
 }
 
 @custom-variant dark (&:where(.dark, .dark *));
