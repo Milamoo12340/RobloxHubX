@@ -19,6 +19,13 @@ export const pool = process.env.DATABASE_URL ? new Pool({
   connectionTimeoutMillis: 5000,
 }) : null;
 
+// Add error handler to prevent unhandled errors
+if (pool) {
+  pool.on('error', (err) => {
+    console.warn("Database pool error (non-fatal):", err.message);
+  });
+}
+
 export const db = pool ? drizzle({ client: pool, schema }) : null;
 
 // Test database connection on startup
@@ -34,7 +41,7 @@ export async function testConnection() {
     client.release();
     return true;
   } catch (error) {
-    console.error("Database connection failed:", error);
+    console.warn("Database connection test failed (app will use in-memory storage):", error instanceof Error ? error.message : String(error));
     return false;
   }
 }
