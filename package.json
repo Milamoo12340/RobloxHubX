@@ -48,6 +48,7 @@
     "pg": "^8.16.3",
     "react": "*",
     "react-dom": "*",
+    "react-jsx": "^1.0.0",
     "rss-parser": "*",
     "systeminformation": "*",
     "tailwind-merge": "*",
