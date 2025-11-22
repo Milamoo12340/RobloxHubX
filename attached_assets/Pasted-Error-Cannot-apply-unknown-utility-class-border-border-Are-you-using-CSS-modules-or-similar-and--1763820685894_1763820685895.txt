@@ -1,0 +1,21 @@
+Error: Cannot apply unknown utility class `border-border`. Are you using CSS modules or similar and missing `@reference`? https://tailwindcss.com/docs/functions-and-directives#reference-directive
+    at onInvalidCandidate (/home/runner/workspace/node_modules/tailwindcss/dist/lib.js:21:1314)
+    at Te (/home/runner/workspace/node_modules/tailwindcss/dist/lib.js:16:36364)
+    at /home/runner/workspace/node_modules/tailwindcss/dist/lib.js:21:355
+    at Tr (/home/runner/workspace/node_modules/tailwindcss/dist/lib.js:3:1718)
+    at _ (/home/runner/workspace/node_modules/tailwindcss/dist/lib.js:3:1377)
+    at Se (/home/runner/workspace/node_modules/tailwindcss/dist/lib.js:21:172)
+    at ln (/home/runner/workspace/node_modules/tailwindcss/dist/lib.js:38:294)
+    at async sn (/home/runner/workspace/node_modules/tailwindcss/dist/lib.js:38:631)
+    at async Qr (/home/runner/workspace/node_modules/@tailwindcss/node/dist/index.js:10:3385)
+    at async I (/home/runner/workspace/node_modules/@tailwindcss/postcss/dist/index.js:10:3978)
+    at async Object.Once (/home/runner/workspace/node_modules/@tailwindcss/postcss/dist/index.js:10:4250)
+    at async LazyResult.runAsync (/home/runner/workspace/node_modules/postcss/lib/lazy-result.js:293:11)
+    at async runPostCSS (/home/runner/workspace/node_modules/vite/dist/node/chunks/config.js:30793:19)
+    at async compilePostCSS (/home/runner/workspace/node_modules/vite/dist/node/chunks/config.js:30777:6)
+    at async compileCSS (/home/runner/workspace/node_modules/vite/dist/node/chunks/config.js:30707:26)
+    at async TransformPluginContext.handler (/home/runner/workspace/node_modules/vite/dist/node/chunks/config.js:30240:54)
+    at async EnvironmentPluginContainer.transform (/home/runner/workspace/node_modules/vite/dist/node/chunks/config.js:29445:14)
+    at async loadAndTransform (/home/runner/workspace/node_modules/vite/dist/node/chunks/config.js:23316:26)
+2:09:57 PM [vite] (client) Pre-transform error: [postcss] tailwindcss: /home/runner/workspace/client/src/index.css:1:1: Cannot apply unknown utility class `border-border`. Are you using CSS modules or similar and missing `@reference`? https://tailwindcss.com/docs/functions-and-directives#reference-directive
+  Plugin: vite:css
