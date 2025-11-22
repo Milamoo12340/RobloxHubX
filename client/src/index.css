@@ -46,6 +46,9 @@
   border-color: var(--badge-outline);
   background-color: var(--elevate-1);
   background-color: var(--elevate-2);
+  font-family: var(--font-sans);
+  font-family: var(--font-serif);
+  font-family: var(--font-mono);
 }
 
 /* LIGHT MODE */
@@ -249,7 +252,7 @@
 
   /* Hide ugly search cancel button in Chrome until we can style it properly */
   input[type="search"]::-webkit-search-cancel-button {
-    @apply hidden;
+    display: none;
   }
 
   /* Placeholder styling for contentEditable div */
