@@ -1,2 +1,0 @@
-../PS99_Leak_Detector_Ultra/app.py:GAME_IDS = [
-../PS99_Leak_Detector_Ultra/app.py:        game_ids=GAME_IDS
