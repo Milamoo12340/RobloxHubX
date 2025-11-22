@@ -1,23 +1,28 @@
-import { Pool, neonConfig } from '@neondatabase/serverless';
-import { drizzle } from 'drizzle-orm/neon-serverless';
-import ws from "ws";
+import { Pool } from 'pg';
+import { drizzle } from 'drizzle-orm/node-postgres';
 import * as schema from "@shared/schema";
 
-neonConfig.webSocketConstructor = ws;
-
-if (!process.env.DATABASE_URL) {
-  console.warn("DATABASE_URL not set. Database features will be disabled until configured.");
-  console.log("To enable database features:");
-  console.log("1. Go to the Secrets tab in Replit");
-  console.log("2. Add a new secret called 'DATABASE_URL'");
-  console.log("3. Set it to your Neon PostgreSQL connection string");
-}
-
-export const pool = process.env.DATABASE_URL ? new Pool({ 
+// Use individual PG* environment variables or DATABASE_URL
+const poolConfig = process.env.DATABASE_URL ? { 
   connectionString: process.env.DATABASE_URL,
   max: 10,
   connectionTimeoutMillis: 5000,
-}) : null;
+} : process.env.PGHOST ? {
+  host: process.env.PGHOST,
+  port: parseInt(process.env.PGPORT || '5432', 10),
+  database: process.env.PGDATABASE,
+  user: process.env.PGUSER,
+  password: process.env.PGPASSWORD,
+  max: 10,
+  connectionTimeoutMillis: 5000,
+} : null;
+
+if (!poolConfig) {
+  console.warn("Database not configured. Skipping database setup.");
+  console.log("To enable database, set either DATABASE_URL or PGHOST, PGPORT, PGDATABASE, PGUSER, PGPASSWORD");
+}
+
+export const pool = poolConfig ? new Pool(poolConfig) : null;
 
 // Add error handler to prevent unhandled errors
 if (pool) {
