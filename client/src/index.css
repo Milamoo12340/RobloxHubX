@@ -18,22 +18,29 @@
   --sidebar-border: 0 0% 91%;
   --sidebar-primary: 130 85% 45%;
   --sidebar-primary-foreground: 130 10% 10%;
+  --sidebar-primary-border: 130 85% 37%;
   --sidebar-accent: 0 0% 90%;
   --sidebar-accent-foreground: 0 0% 15%;
+  --sidebar-accent-border: 0 0% 80%;
   --sidebar-ring: 130 85% 45%;
   --popover: 0 0% 95%;
   --popover-foreground: 0 0% 12%;
   --popover-border: 0 0% 89%;
   --primary: 130 85% 45%;
   --primary-foreground: 130 10% 10%;
+  --primary-border: 130 85% 37%;
   --secondary: 0 0% 88%;
   --secondary-foreground: 0 0% 15%;
+  --secondary-border: 0 0% 78%;
   --muted: 0 0% 92%;
   --muted-foreground: 0 0% 40%;
+  --muted-border: 0 0% 82%;
   --accent: 180 70% 50%;
   --accent-foreground: 180 10% 10%;
+  --accent-border: 180 70% 42%;
   --destructive: 0 72% 45%;
   --destructive-foreground: 0 10% 98%;
+  --destructive-border: 0 72% 37%;
   --input: 0 0% 75%;
   --ring: 130 85% 45%;
   --chart-1: 130 75% 55%;
@@ -45,21 +52,6 @@
   --font-serif: Georgia, serif;
   --font-mono: 'JetBrains Mono', monospace;
   --radius: .5rem;
-
-  --sidebar-primary-border: hsl(var(--sidebar-primary));
-  --sidebar-primary-border: hsl(from hsl(var(--sidebar-primary)) h s calc(l + var(--opaque-button-border-intensity)) / alpha);
-  --sidebar-accent-border: hsl(var(--sidebar-accent));
-  --sidebar-accent-border: hsl(from hsl(var(--sidebar-accent)) h s calc(l + var(--opaque-button-border-intensity)) / alpha);
-  --primary-border: hsl(var(--primary));
-  --primary-border: hsl(from hsl(var(--primary)) h s calc(l + var(--opaque-button-border-intensity)) / alpha);
-  --secondary-border: hsl(var(--secondary));
-  --secondary-border: hsl(from hsl(var(--secondary)) h s calc(l + var(--opaque-button-border-intensity)) / alpha);
-  --muted-border: hsl(var(--muted));
-  --muted-border: hsl(from hsl(var(--muted)) h s calc(l + var(--opaque-button-border-intensity)) / alpha);
-  --accent-border: hsl(var(--accent));
-  --accent-border: hsl(from hsl(var(--accent)) h s calc(l + var(--opaque-button-border-intensity)) / alpha);
-  --destructive-border: hsl(var(--destructive));
-  --destructive-border: hsl(from hsl(var(--destructive)) h s calc(l + var(--opaque-button-border-intensity)) / alpha);
 }
 
 .dark {
@@ -79,22 +71,29 @@
   --sidebar-border: 0 0% 8%;
   --sidebar-primary: 130 75% 50%;
   --sidebar-primary-foreground: 130 10% 10%;
+  --sidebar-primary-border: 130 75% 42%;
   --sidebar-accent: 0 0% 10%;
   --sidebar-accent-foreground: 0 0% 88%;
+  --sidebar-accent-border: 0 0% 20%;
   --sidebar-ring: 130 75% 50%;
   --popover: 0 0% 10%;
   --popover-foreground: 0 0% 92%;
   --popover-border: 0 0% 15%;
   --primary: 130 75% 50%;
   --primary-foreground: 130 10% 10%;
+  --primary-border: 130 75% 42%;
   --secondary: 0 0% 14%;
   --secondary-foreground: 0 0% 88%;
+  --secondary-border: 0 0% 24%;
   --muted: 0 0% 12%;
   --muted-foreground: 0 0% 60%;
+  --muted-border: 0 0% 22%;
   --accent: 180 60% 45%;
   --accent-foreground: 180 10% 95%;
+  --accent-border: 180 60% 37%;
   --destructive: 0 70% 45%;
   --destructive-foreground: 0 10% 96%;
+  --destructive-border: 0 70% 37%;
   --input: 0 0% 20%;
   --ring: 130 75% 50%;
   --chart-1: 130 70% 60%;
@@ -102,21 +101,6 @@
   --chart-3: 280 65% 70%;
   --chart-4: 30 75% 65%;
   --chart-5: 340 70% 65%;
-
-  --sidebar-primary-border: hsl(var(--sidebar-primary));
-  --sidebar-primary-border: hsl(from hsl(var(--sidebar-primary)) h s calc(l + var(--opaque-button-border-intensity)) / alpha);
-  --sidebar-accent-border: hsl(var(--sidebar-accent));
-  --sidebar-accent-border: hsl(from hsl(var(--sidebar-accent)) h s calc(l + var(--opaque-button-border-intensity)) / alpha);
-  --primary-border: hsl(var(--primary));
-  --primary-border: hsl(from hsl(var(--primary)) h s calc(l + var(--opaque-button-border-intensity)) / alpha);
-  --secondary-border: hsl(var(--secondary));
-  --secondary-border: hsl(from hsl(var(--secondary)) h s calc(l + var(--opaque-button-border-intensity)) / alpha);
-  --muted-border: hsl(var(--muted));
-  --muted-border: hsl(from hsl(var(--muted)) h s calc(l + var(--opaque-button-border-intensity)) / alpha);
-  --accent-border: hsl(var(--accent));
-  --accent-border: hsl(from hsl(var(--accent)) h s calc(l + var(--opaque-button-border-intensity)) / alpha);
-  --destructive-border: hsl(var(--destructive));
-  --destructive-border: hsl(from hsl(var(--destructive)) h s calc(l + var(--opaque-button-border-intensity)) / alpha);
 }
 
 @layer base {
