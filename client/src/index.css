@@ -1,12 +1,6 @@
 @import "tailwindcss";
 
-/* LIGHT MODE */
-:root {
-  --button-outline: rgba(0,0,0, .10);
-  --badge-outline: rgba(0,0,0, .05);
-  --opaque-button-border-intensity: -8;
-  --elevate-1: rgba(0,0,0, .03);
-  --elevate-2: rgba(0,0,0, .08);
+@theme {
   --background: 0 0% 100%;
   --foreground: 0 0% 10%;
   --border: 0 0% 92%;
@@ -51,15 +45,17 @@
   --font-sans: 'Inter', sans-serif;
   --font-serif: Georgia, serif;
   --font-mono: 'JetBrains Mono', monospace;
-  --radius: .5rem;
+  --radius: 0.5rem;
+}
+
+:root {
+  --button-outline: rgba(0, 0, 0, 0.10);
+  --badge-outline: rgba(0, 0, 0, 0.05);
+  --elevate-1: rgba(0, 0, 0, 0.03);
+  --elevate-2: rgba(0, 0, 0, 0.08);
 }
 
 .dark {
-  --button-outline: rgba(255,255,255, .10);
-  --badge-outline: rgba(255,255,255, .05);
-  --opaque-button-border-intensity: 9;
-  --elevate-1: rgba(255,255,255, .04);
-  --elevate-2: rgba(255,255,255, .09);
   --background: 0 0% 6%;
   --foreground: 0 0% 95%;
   --border: 0 0% 16%;
@@ -101,6 +97,11 @@
   --chart-3: 280 65% 70%;
   --chart-4: 30 75% 65%;
   --chart-5: 340 70% 65%;
+
+  --button-outline: rgba(255, 255, 255, 0.10);
+  --badge-outline: rgba(255, 255, 255, 0.05);
+  --elevate-1: rgba(255, 255, 255, 0.04);
+  --elevate-2: rgba(255, 255, 255, 0.09);
 }
 
 @layer base {
@@ -114,6 +115,26 @@
     -moz-osx-font-smoothing: grayscale;
     background-color: hsl(var(--background));
     color: hsl(var(--foreground));
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    color: hsl(var(--foreground));
+  }
+}
+
+@layer components {
+  .card-base {
+    background-color: hsl(var(--card));
+    border: 1px solid hsl(var(--card-border));
+    border-radius: var(--radius);
+  }
+
+  .button-base {
+    border: 1px solid var(--button-outline);
+  }
+
+  .badge-base {
+    border: 1px solid var(--badge-outline);
   }
 }
 
@@ -129,6 +150,7 @@
   }
 
   .no-default-hover-elevate {}
+
   .no-default-active-elevate {}
 
   .toggle-elevate::before,
