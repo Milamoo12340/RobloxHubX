@@ -4,7 +4,7 @@ hidden = [".config", ".git", "generated-icon.png", "node_modules", "dist"]
 
 [nix]
 channel = "stable-24_05"
-packages = ["unzip", "run", "systemdMinimal", "pwntools", "javascript-typescript-langserver", "vimPlugins.vim-javascript", "jsvc"]
+packages = ["unzip", "run", "systemdMinimal", "javascript-typescript-langserver", "vimPlugins.vim-javascript", "jsvc"]
 
 [deployment]
 deploymentTarget = "autoscale"
@@ -14,6 +14,10 @@ run = ["npm", "run", "start"]
 [[ports]]
 localPort = 5000
 externalPort = 80
+
+[[ports]]
+localPort = 35763
+externalPort = 3000
 
 [[ports]]
 localPort = 44343
