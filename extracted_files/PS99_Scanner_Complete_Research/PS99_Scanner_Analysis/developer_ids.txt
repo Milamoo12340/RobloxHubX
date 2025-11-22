@@ -1,6 +1,0 @@
-../PS99_Leak_Detector_Ultra/app.py:DEVELOPER_IDS = [
-../PS99_Leak_Detector_Ultra/app.py:        developer_ids=DEVELOPER_IDS,
-../PS99_Leak_Detector_Ultra/view_leaks.py:DEVELOPER_IDS = [
-../PS99_Leak_Detector_Ultra/view_leaks.py:    for dev_id in DEVELOPER_IDS:
-../PS99_Leak_Detector_Ultra/display_assets.py:DEVELOPER_IDS = [
-../PS99_Leak_Detector_Ultra/display_assets.py:    for dev_id in DEVELOPER_IDS:

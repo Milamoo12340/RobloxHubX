@@ -1,1 +1,0 @@
-{ "petId": "mythical_dragon", "petType": "mythical", "petName": "Mythical Dragon", "rarity": "legendary", "isHuge": true, "isLimited": true, "value": 10000000, "stats": { "damage": 15000, "health": 10000, "speed": 120 }, "abilities": ["fire_breath", "flight", "ancient_magic"] }
