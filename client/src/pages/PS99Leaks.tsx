@@ -290,14 +290,7 @@ export default function PS99Leaks() {
 
       <div className="flex-1 overflow-auto">
         <div className="p-6 space-y-6">
-          <Alert className="border-primary/50 bg-primary/5" data-testid="alert-network-info">
-            <AlertTriangle className="h-4 w-4 text-primary" />
-            <AlertTitle className="text-primary">Network Access Required</AlertTitle>
-            <AlertDescription className="text-sm text-muted-foreground">
-              This feature requires access to Roblox APIs. Replit's environment may block external API requests. 
-              For full functionality, deploy this app to a platform with unrestricted internet access.
-            </AlertDescription>
-          </Alert>
+          
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             <Card data-testid="card-stat-recent">

@@ -44,12 +44,7 @@ export default function News() {
         </p>
       </div>
 
-      <Alert data-testid="alert-external-links">
-        <AlertCircle className="h-4 w-4" />
-        <AlertDescription>
-          News links open external Roblox websites. Live RSS feeds are unavailable due to network restrictions.
-        </AlertDescription>
-      </Alert>
+      
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {newsItems.map((item) => (
