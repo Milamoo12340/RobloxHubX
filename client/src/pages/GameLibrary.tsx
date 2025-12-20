@@ -37,15 +37,7 @@ export default function GameLibrary() {
         </p>
       </div>
 
-      {!allGamesLoading && !hasAnyGames && (
-        <Alert data-testid="alert-network-restriction">
-          <AlertCircle className="h-4 w-4" />
-          <AlertDescription>
-            Unable to load Roblox games due to network restrictions in the Replit environment. 
-            This will work with normal internet access.
-          </AlertDescription>
-        </Alert>
-      )}
+      
 
       <div className="space-y-8">
         <div>

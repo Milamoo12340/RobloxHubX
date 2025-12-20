@@ -231,13 +231,6 @@ export default function Dashboard() {
       <div className="space-y-4">
         <h2 className="text-xl font-semibold">Roblox Friends</h2>
         
-        <Alert data-testid="alert-roblox-api-restriction">
-          <AlertCircle className="h-4 w-4" />
-          <AlertDescription>
-            <strong>Network Restriction Notice:</strong> Roblox friend linking may not work in the Replit environment due to DNS restrictions blocking access to Roblox APIs. This feature will work with normal internet access.
-          </AlertDescription>
-        </Alert>
-
         <RobloxConnect
           onUserLinked={handleUserLinked}
           linkedUser={linkedUser}

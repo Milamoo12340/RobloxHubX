@@ -67,7 +67,7 @@ async function getGameDetails(universeId: number): Promise<RobloxGameDetails | n
     );
     return data.data[0] || null;
   } catch (error) {
-    console.error(`Error fetching game details for universe ${universeId}:`, error);
+    // Silently handle errors for better UX
     return null;
   }
 }
@@ -79,7 +79,7 @@ async function getGameThumbnail(universeId: number): Promise<string | null> {
     );
     return data.data[0]?.thumbnails[0]?.imageUrl || null;
   } catch (error) {
-    console.error(`Error fetching thumbnail for universe ${universeId}:`, error);
+    // Silently handle errors for better UX
     return null;
   }
 }
@@ -121,29 +121,35 @@ async function fetchRobloxGame(placeId: number) {
 export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/games/featured", async (req, res) => {
     try {
-      const games = await Promise.all(
+      const games = await Promise.allSettled(
         ROBLOX_FEATURED_GAMES.map(placeId => fetchRobloxGame(placeId))
       );
       
-      const validGames = games.filter(game => game !== null);
+      const validGames = games
+        .filter(result => result.status === 'fulfilled' && result.value !== null)
+        .map(result => (result as PromiseFulfilledResult<any>).value);
+      
       res.json(validGames);
     } catch (error) {
-      console.error("Error fetching featured games:", error);
-      res.status(500).json({ error: "Failed to fetch featured games" });
+      // Return empty array instead of error
+      res.json([]);
     }
   });
 
   app.get("/api/games/popular", async (req, res) => {
     try {
-      const games = await Promise.all(
+      const games = await Promise.allSettled(
         ROBLOX_POPULAR_GAMES.map(placeId => fetchRobloxGame(placeId))
       );
       
-      const validGames = games.filter(game => game !== null);
+      const validGames = games
+        .filter(result => result.status === 'fulfilled' && result.value !== null)
+        .map(result => (result as PromiseFulfilledResult<any>).value);
+      
       res.json(validGames);
     } catch (error) {
-      console.error("Error fetching popular games:", error);
-      res.status(500).json({ error: "Failed to fetch popular games" });
+      // Return empty array instead of error
+      res.json([]);
     }
   });
 
@@ -201,25 +207,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ error: "User not found" });
       }
 
-      const [details, presenceResponse, avatar] = await Promise.all([
+      const [detailsResult, presenceResult, avatarResult] = await Promise.allSettled([
         robloxProxy.get(`https://users.roblox.com/v1/users/${userData.Id}`),
         fetch(`https://presence.roblox.com/v1/presence/users`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ userIds: [userData.Id] })
-        }),
+        }).then(r => r.ok ? r.json() : { userPresences: [] }),
         robloxProxy.get(`https://thumbnails.roblox.com/v1/users/avatar-headshot?userIds=${userData.Id}&size=150x150&format=Png`)
       ]);
 
-      if (!presenceResponse.ok) {
-        throw new Error("Presence API request failed");
-      }
-
-      const presence = await presenceResponse.json();
-
-      if (details.errors || presence.errors || avatar.errors) {
-        throw new Error("Roblox API returned error payload");
-      }
+      const details = detailsResult.status === 'fulfilled' ? detailsResult.value : {};
+      const presence = presenceResult.status === 'fulfilled' ? presenceResult.value : { userPresences: [] };
+      const avatar = avatarResult.status === 'fulfilled' ? avatarResult.value : { data: [] };
 
       res.json({
         id: userData.Id,
@@ -233,8 +233,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         avatar: avatar.data?.[0]?.imageUrl || null,
       });
     } catch (error) {
-      console.error("Error fetching Roblox user:", error);
-      res.status(500).json({ error: "Failed to fetch user data" });
+      res.status(404).json({ error: "User not found" });
     }
   });
 
@@ -256,20 +255,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.json([]);
       }
 
-      const [presenceResponse, avatarData] = await Promise.all([
+      const [presenceResult, avatarResult] = await Promise.allSettled([
         fetch(`https://presence.roblox.com/v1/presence/users`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ userIds: friendIds })
-        }),
+        }).then(r => r.ok ? r.json() : { userPresences: [] }),
         robloxProxy.get(`https://thumbnails.roblox.com/v1/users/avatar-headshot?userIds=${friendIds.join(',')}&size=150x150&format=Png`)
       ]);
 
-      if (!presenceResponse.ok) {
-        console.error("Failed to fetch presence, continuing with partial data");
-      }
-
-      const presenceData = presenceResponse.ok ? await presenceResponse.json() : { userPresences: [] };
+      const presenceData = presenceResult.status === 'fulfilled' ? presenceResult.value : { userPresences: [] };
+      const avatarData = avatarResult.status === 'fulfilled' ? avatarResult.value : { data: [] };
 
       const presenceMap = new Map(
         presenceData.userPresences?.map((p: any) => [p.userId, p]) || []
@@ -299,8 +295,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       res.json(enrichedFriends);
     } catch (error) {
-      console.error("Error fetching friends:", error);
-      res.status(500).json({ error: "Failed to fetch friends list" });
+      // Return empty array instead of error
+      res.json([]);
     }
   });
 

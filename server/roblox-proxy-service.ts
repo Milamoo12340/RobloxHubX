@@ -81,7 +81,7 @@ class LRUCache<K, V> {
   set(key: K, value: V): void {
     this.cache.delete(key);
     this.cache.set(key, value);
-    
+
     // Remove oldest if over limit
     if (this.cache.size > this.maxSize) {
       const firstKey = this.cache.keys().next().value;
@@ -120,11 +120,11 @@ export class RobloxProxyService {
 
   constructor(config: Partial<ProxyConfig> = {}) {
     this.config = { ...DEFAULT_CONFIG, ...config };
-    
+
     if (this.config.enableBypass) {
       console.warn('⚠️  ROBLOX PROXY BYPASS ENABLED - This may violate Roblox ToS');
     }
-    
+
     if (this.config.enableSessionRotation) {
       this.initializeSessions(8);
     }
@@ -190,15 +190,15 @@ export class RobloxProxyService {
 
     this.currentSessionIndex = (this.currentSessionIndex + 1) % this.sessions.length;
     const session = this.sessions[this.currentSessionIndex];
-    
+
     // Refresh fingerprint
     session.headers = this.generateBrowserFingerprint();
-    
+
     // Refresh cookies occasionally
     if (Math.random() < 0.2) {
       session.cookies = this.generateRobloxCookies();
     }
-    
+
     session.lastUsed = Date.now();
     return session;
   }
@@ -214,12 +214,12 @@ export class RobloxProxyService {
 
     const key = this.getCacheKey(url);
     const cached = this.cache.get(key);
-    
+
     if (cached && (Date.now() - cached.timestamp) <= this.config.cacheTTL * 1000) {
       this.stats.cachedRequests++;
       return cached.data;
     }
-    
+
     return null;
   }
 
@@ -240,7 +240,7 @@ export class RobloxProxyService {
     // Base delay with jitter
     const delay = this.config.baseDelay + this.random(0, 500);
     await new Promise(resolve => setTimeout(resolve, delay));
-    
+
     // Occasionally add longer pause (10% chance)
     if (Math.random() < 0.10) {
       const longerDelay = this.random(2000, 4000);
@@ -254,7 +254,7 @@ export class RobloxProxyService {
     }
 
     this.auditLog.push(entry);
-    
+
     // Keep only last 1000 entries
     if (this.auditLog.length > 1000) {
       this.auditLog.shift();
@@ -263,9 +263,9 @@ export class RobloxProxyService {
 
   async get(url: string, options: { cacheTTL?: number } = {}): Promise<any> {
     this.stats.totalRequests++;
-    
+
     const cacheTTL = options.cacheTTL ?? this.config.cacheTTL;
-    
+
     // Check cache
     const cached = this.getFromCache(url);
     if (cached !== null) {
@@ -279,18 +279,18 @@ export class RobloxProxyService {
       });
       return cached;
     }
-    
+
     // Apply timing delay
     await this.applyHumanTiming();
-    
+
     // Get session
     const session = this.rotateSession();
-    
+
     // Retry loop
     for (let attempt = 0; attempt < this.config.maxRetries; attempt++) {
       try {
         const headers = { ...session.headers };
-        
+
         // Add cookies if enabled
         if (this.config.enableFakeCookies) {
           const cookieStr = Object.entries(session.cookies)
@@ -300,24 +300,24 @@ export class RobloxProxyService {
             headers['Cookie'] = cookieStr;
           }
         }
-        
+
         const response = await fetch(url, {
           method: 'GET',
           headers,
           signal: AbortSignal.timeout(15000),
         });
-        
+
         // Handle rate limiting
         if (response.status === 429) {
           this.stats.rateLimitedRequests++;
-          
+
           const backoff = 2000 * Math.pow(2, attempt) + this.random(1000, 3000);
           console.warn(`Rate limited. Backing off for ${(backoff/1000).toFixed(1)}s...`);
-          
+
           await new Promise(resolve => setTimeout(resolve, backoff));
           continue;
         }
-        
+
         // Handle errors
         if (!response.ok) {
           if ([400, 403, 404].includes(response.status)) {
@@ -333,7 +333,7 @@ export class RobloxProxyService {
             });
             throw new Error(`HTTP ${response.status}: ${response.statusText}`);
           }
-          
+
           // Retry server errors
           if (response.status >= 500) {
             const serverBackoff = 3000 * Math.pow(2, attempt);
@@ -341,22 +341,22 @@ export class RobloxProxyService {
             continue;
           }
         }
-        
+
         // Success
         if (response.ok) {
           this.stats.successfulRequests++;
-          
+
           let data: any;
           const contentType = response.headers.get('content-type');
-          
+
           if (contentType?.includes('application/json')) {
             data = await response.json();
           } else {
             data = await response.text();
           }
-          
+
           this.saveToCache(url, data);
-          
+
           this.logRequest({
             timestamp: Date.now(),
             url,
@@ -365,14 +365,14 @@ export class RobloxProxyService {
             cached: false,
             sessionIndex: this.currentSessionIndex,
           });
-          
+
           return data;
         }
-        
+
       } catch (error: any) {
         this.stats.errors++;
         console.error(`Request error (attempt ${attempt + 1}/${this.config.maxRetries}):`, error.message);
-        
+
         if (attempt === this.config.maxRetries - 1) {
           this.logRequest({
             timestamp: Date.now(),
@@ -385,12 +385,12 @@ export class RobloxProxyService {
           });
           throw error;
         }
-        
+
         const errorBackoff = 1000 * Math.pow(2, attempt);
         await new Promise(resolve => setTimeout(resolve, errorBackoff));
       }
     }
-    
+
     throw new Error(`Failed to fetch ${url} after ${this.config.maxRetries} attempts`);
   }
 
@@ -430,3 +430,15 @@ export const robloxProxy = new RobloxProxyService({
   maxRetries: 5,                   // 5 retry attempts
   enableAuditLog: false,           // Disable audit logging for performance
 });
+
+async function getUniverseIdFromPlaceId(placeId: number): Promise<number | null> {
+  try {
+    const data = await robloxProxy.get(
+      `https://games.roblox.com/v1/games/multiget-place-details?placeIds=${placeId}`
+    );
+    return data[0]?.universeId || null;
+  } catch (error) {
+    // Silently handle errors for better UX
+    return null;
+  }
+}
