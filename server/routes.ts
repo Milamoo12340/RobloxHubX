@@ -4,7 +4,7 @@ import si from "systeminformation";
 import Parser from "rss-parser";
 import { storage } from "./storage";
 import { insertPS99AssetSchema } from "../shared/schema.js";
-import { ALL_PS99_DEVELOPERS, ROBLOX_API, LEAK_KEYWORDS } from "@shared/ps99-constants";
+import { ALL_PS99_DEVELOPERS, ROBLOX_API } from "@shared/ps99-constants";
 import { robloxProxy } from "./roblox-proxy-service";
 import { PS99Scanner } from "./ps99-scanner";
 
@@ -119,7 +119,7 @@ async function fetchRobloxGame(placeId: number) {
 }
 
 export async function registerRoutes(app: Express): Promise<Server> {
-  app.get("/api/games/featured", async (req, res) => {
+  app.get("/api/games/featured", async (_req, res) => {
     try {
       const games = await Promise.allSettled(
         ROBLOX_FEATURED_GAMES.map(placeId => fetchRobloxGame(placeId))
@@ -136,7 +136,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get("/api/games/popular", async (req, res) => {
+  app.get("/api/games/popular", async (_req, res) => {
     try {
       const games = await Promise.allSettled(
         ROBLOX_POPULAR_GAMES.map(placeId => fetchRobloxGame(placeId))
@@ -153,7 +153,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get("/api/performance/system", async (req, res) => {
+  app.get("/api/performance/system", async (_req, res) => {
     try {
       const [cpuLoad, mem, cpuTemp] = await Promise.all([
         si.currentLoad(),
@@ -174,7 +174,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get("/api/news", async (req, res) => {
+  app.get("/api/news", async (_req, res) => {
     try {
       const feed = await rssParser.parseURL("https://corp.roblox.com/newsroom?feed=rss");
       
@@ -353,7 +353,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get("/api/ps99/developers", async (req, res) => {
+  app.get("/api/ps99/developers", async (_req, res) => {
     try {
       res.json(ALL_PS99_DEVELOPERS);
     } catch (error) {
@@ -389,7 +389,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/ps99/scan", async (req, res) => {
+  app.post("/api/ps99/scan", async (_req, res) => {
     try {
       console.log('🚀 Starting full PS99 asset scan...');
       const scanner = new PS99Scanner();
@@ -402,7 +402,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get("/api/ps99/scan/stats", async (req, res) => {
+  app.get("/api/ps99/scan/stats", async (_req, res) => {
     try {
       const stats = robloxProxy.getStats();
       res.json(stats);

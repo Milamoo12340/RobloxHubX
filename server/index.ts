@@ -20,6 +20,12 @@ app.use(express.urlencoded({ extended: false }));
 app.use((req, res, next) => {
   const start = Date.now();
   const path = req.path;
+
+  // Skip logging for high-frequency performance polling
+  if (path === "/api/performance/system") {
+    return next();
+  }
+
   let capturedJsonResponse: Record<string, any> | undefined = undefined;
 
   const originalResJson = res.json;
