@@ -261,10 +261,11 @@ export class RobloxProxyService {
     }
   }
 
-  async get(url: string, options: { cacheTTL?: number } = {}): Promise<any> {
+  async get(url: string, _options: { cacheTTL?: number } = {}): Promise<any> {
     this.stats.totalRequests++;
 
-    const cacheTTL = options.cacheTTL ?? this.config.cacheTTL;
+    const cacheTTL = _options.cacheTTL ?? this.config.cacheTTL;
+    console.log(`[Proxy] GET ${url} (TTL: ${cacheTTL}s)`);
 
     // Check cache
     const cached = this.getFromCache(url);

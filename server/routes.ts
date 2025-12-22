@@ -51,7 +51,8 @@ interface RobloxGameDetails {
 async function getUniverseIdFromPlaceId(placeId: number): Promise<number | null> {
   try {
     const data = await robloxProxy.get(
-      `https://games.roblox.com/v1/games/multiget-place-details?placeIds=${placeId}`
+      `https://games.roblox.com/v1/games/multiget-place-details?placeIds=${placeId}`,
+      { cacheTTL: 86400 } // Cache universe IDs for 24 hours
     );
     return data[0]?.universeId || null;
   } catch (error) {
