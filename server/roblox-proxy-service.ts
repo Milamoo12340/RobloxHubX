@@ -420,3 +420,26 @@ export class RobloxProxyService {
 }
 
 // Export singleton with FULL BYPASS ENABLED
+export const robloxProxy = new RobloxProxyService({
+  enableBypass: true,              // ENABLED - All bypass features active
+  enableSessionRotation: true,     // 8 rotating browser sessions
+  enableFakeCookies: true,         // Fake Roblox cookies
+  enableHumanTiming: true,         // Human-like delays
+  enableCaching: true,             // Cache responses
+  cacheTTL: 3600,                  // 1 hour cache
+  baseDelay: 1500,                 // 1.5s base delay
+  maxRetries: 5,                   // 5 retry attempts
+  enableAuditLog: false,           // Disable audit logging for performance
+});
+
+export async function getUniverseIdFromPlaceId(placeId: number): Promise<number | null> {
+  try {
+    const data = await robloxProxy.get(
+      `https://games.roblox.com/v1/games/multiget-place-details?placeIds=${placeId}`
+    );
+    return data[0]?.universeId || null;
+  } catch (error) {
+    // Silently handle errors for better UX
+    return null;
+  }
+}
