@@ -1,7 +1,6 @@
 @import "tailwindcss";
 
 @theme {
-  /* Colors */
   --color-background: 0 0% 100%;
   --color-foreground: 0 0% 10%;
   --color-border: 0 0% 92%;
@@ -44,12 +43,10 @@
   --color-chart-4: 30 80% 55%;
   --color-chart-5: 340 75% 60%;
   
-  /* Fonts */
   --font-sans: 'Inter', sans-serif;
   --font-serif: Georgia, serif;
   --font-mono: 'JetBrains Mono', monospace;
   
-  /* Border radius */
   --radius: 0.5rem;
   --sidebar-width: 16rem;
   --sidebar-width-icon: 3rem;
