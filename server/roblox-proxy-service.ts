@@ -372,7 +372,6 @@ export class RobloxProxyService {
 
       } catch (error: any) {
         this.stats.errors++;
-        console.error(`Request error (attempt ${attempt + 1}/${this.config.maxRetries}):`, error.message);
 
         if (attempt === this.config.maxRetries - 1) {
           this.logRequest({
@@ -419,16 +418,16 @@ export class RobloxProxyService {
   }
 }
 
-// Export singleton with FULL BYPASS ENABLED
+// Export singleton with bypass DISABLED for API compatibility
 export const robloxProxy = new RobloxProxyService({
-  enableBypass: true,              // ENABLED - All bypass features active
-  enableSessionRotation: true,     // 8 rotating browser sessions
-  enableFakeCookies: true,         // Fake Roblox cookies
-  enableHumanTiming: true,         // Human-like delays
-  enableCaching: true,             // Cache responses
+  enableBypass: false,             // DISABLED - Use standard API requests
+  enableSessionRotation: false,    // No session rotation
+  enableFakeCookies: false,        // No fake cookies
+  enableHumanTiming: false,        // No artificial delays
+  enableCaching: true,             // Cache responses to reduce requests
   cacheTTL: 3600,                  // 1 hour cache
-  baseDelay: 1500,                 // 1.5s base delay
-  maxRetries: 5,                   // 5 retry attempts
+  baseDelay: 500,                  // 0.5s between requests
+  maxRetries: 2,                   // 2 quick retries for failed requests
   enableAuditLog: false,           // Disable audit logging for performance
 });
 
