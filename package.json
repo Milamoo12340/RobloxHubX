@@ -10,10 +10,10 @@
     "start": "NODE_ENV=production node dist/index.js",
     "check": "tsc",
     "db:push": "drizzle-kit push",
-    +   "predeploy": "npm run build",
-    +   "deploy": "gh-pages -d build",
-        "start": "react-scripts start",
-        "build": "react-scripts build"
+    "predeploy": "npm run build",
+    "deploy": "gh-pages -d build",
+    "start": "react-scripts start",
+    "build": "react-scripts build"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",
