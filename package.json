@@ -55,7 +55,7 @@
     "drizzle-orm": "*",
     "drizzle-zod": "*",
     "embla-carousel-react": "^8.6.0",
-    "express": "^4.18.2",
+    "express": "^4.22.3",
     "express-session": "*",
     "express-ws": "*",
     "framer-motion": "*",
